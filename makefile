@@ -36,6 +36,8 @@ fix:
 	sed -i '/\o14/ d' $(DST0)
 	#remove lines after double 0A
 	#those are lines with page number and header.
+	#dollar sign has to be doubled otherwise make interprets it as variable
+	#sed -i '/^$/{N;P;d}' $(DST0)
 	sed -i '/^$$/{N;P;d}' $(DST0)
 	###sed -i '/^$/d' $(DST1) #remove empty lines
 	#dollar sign has to be doubled otherwise make interprets it as variable
