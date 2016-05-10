@@ -7,7 +7,7 @@ DST0 = $(NAME).txt
 DST1 = $(NAME).tab
 AGENT = 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.6) Gecko/20070802 SeaMonkey/1.1.4'
 
-all: get totext fix makeConverter maketab makedict
+all: get totext fix converter maketab makedict
 
 almost_all: get totext fix maketab makedict
 
@@ -19,9 +19,9 @@ get:
 
 totext:
 	#pdftotext -layout $(SRC) $(DST0)
-	pdftotext $(SRC) $(DST0)
+	pdftotext -enc Latin1 $(SRC) $(DST0)
 
-makeConverter:
+converter:
 	$(VOC) -s ArmsciiUTF.Mod convert.Mod -m
 
 fix:
@@ -55,6 +55,7 @@ makedict:
 clean:
 	rm *.o
 	rm *.c
-	rm $(DST0)
-	rm $(DST1)
-	rm $(DST2)
+	rm *.h
+	#rm $(DST0)
+	#rm $(DST1)
+	rm .tmp*

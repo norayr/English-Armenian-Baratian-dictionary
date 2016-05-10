@@ -189,8 +189,8 @@ BEGIN
       fo := Files.New(outputFile);
       IF fo # NIL THEN
          Files.Set(ro, fo, 0);
-
-         WHILE ~ r.eof DO
+		 nextWord := FALSE;
+         WHILE ~r.eof & (nextWord # TRUE) DO
            (*REPEAT
              Files.Read(r, ch);
 		   UNTIL r.eof;
@@ -217,6 +217,7 @@ BEGIN
 				   WriteString(ro, str);
 				   Files.Read(r, ch);
 				   IF ch = 0AX THEN WriteChar(ro, 0AX); nextWord := TRUE END
+				ELSE IF ORD(ch) > 32 THEN WriteChar(ro, ch) END
 				END
 			  UNTIL nextWord OR r.eof;
          END; (* while *)
