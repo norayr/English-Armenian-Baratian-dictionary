@@ -189,8 +189,7 @@ BEGIN
       fo := Files.New(outputFile);
       IF fo # NIL THEN
          Files.Set(ro, fo, 0);
-		 nextWord := FALSE;
-         WHILE ~r.eof & (nextWord # TRUE) DO
+         WHILE ~r.eof DO
            (*REPEAT
              Files.Read(r, ch);
 		   UNTIL r.eof;
