@@ -28,13 +28,16 @@ converter:
 	#$(VOC) -s ArmsciiUTF.Mod convert.Mod -m
 	$(VOC) -s s.Mod ArmsciiUTF.Mod conv.Mod -m
 
+fixer:
+	$(VOC) fixer.Mod -m
+
 fix:
 	#remove first 376 lines
 	sed -i -e 1,376d $(DST0)
 	sed -i -e 1,376d $(DST1)
 	#remove lines that start with page break (looks like ^L)
-	sed -i '/\o14/ d' $(DST0)
-	sed -i '/\o14/ d' $(DST1)
+	#sed -i '/\o14/ d' $(DST0)
+	#sed -i '/\o14/ d' $(DST1)
 	#remove last 430 lines
 	sed -i -n -e :a -e '1,430!{P;N;D;};N;ba' $(DST0)
 	sed -i -n -e :a -e '1,430!{P;N;D;};N;ba' $(DST1)

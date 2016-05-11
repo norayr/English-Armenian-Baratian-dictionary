@@ -54,6 +54,41 @@ REPEAT
 UNTIL (ch = 0X) OR (i = j - 1);
 END dumpString;
 
+PROCEDURE isLatin(ch : CHAR): BOOLEAN;
+VAR
+  o : LONGINT;
+BEGIN
+  o := ORD(ch);
+  IF ((o >= 65) & (o <= 90)) OR ((o >= 97) & (o <= 122)) THEN 
+    RETURN TRUE 
+  ELSE 
+    RETURN FALSE
+  END
+END isLatin;
+
+PROCEDURE isArmscii(VAR ch : CHAR) : BOOLEAN;
+BEGIN
+IF (ORD(ch) >= 162) & (ORD(ch) <= 254) THEN RETURN TRUE ELSE RETURN FALSE END
+END isArmscii;
+
+PROCEDURE getDescription(VAR r : Files.Rider; VAR f : Files.File; VAR tmp: s.longstring);
+VAR ch : CHAR;
+    i, pos: LONGINT;
+	enough: BOOLEAN;
+BEGIN
+  i := 0;
+  enough := FALSE;
+  REPEAT
+    Files.Read(r, ch);
+    IF isArmscii(ch) THEN
+	tmp[i] := ch;
+	INC(i);
+	ELSE
+      
+	END;
+  UNTIL enough;
+END getDescription;
+
 PROCEDURE getTranscription(VAR r : Files.Rider; VAR tmp: s.shortstring);
 VAR
   ch : CHAR;
@@ -108,6 +143,7 @@ VAR
   wrd : word;
   i : LONGINT;
   tmp, tmp2 : s.shortstring;
+  ltmp, ltmp2: s.longstring;
 BEGIN
   utfFile := Files.Old(utfText);
   IF utfFile = NIL THEN Out.String(utfText); Out.String(" not found."); Out.Ln; HALT(1); END;
@@ -120,7 +156,7 @@ BEGIN
   i := 0;
   NEW(wrd);
   REPEAT
-    Out.String("getting English word"); Out.Ln;
+    Out.Ln; Out.String("getting English word"); Out.Ln;
     getEnglishWord(utfRider, utfFile, tmp);
     Out.Int(i, 0); Out.Char(' '); Out.String(utfText); Out.String(': "');    
     Out.String(tmp); Out.Char('"'); Out.Ln;
@@ -133,11 +169,17 @@ BEGIN
 	  wrd.name := tmp;
 	END;
 
-	Out.String("getting transcription"); Out.Ln;
+	Out.Ln; Out.String("getting transcription"); Out.Ln;
     getTranscription(utfRider, tmp);
     getTranscription(ucsRider, tmp2);
 	Out.String(utfText); Out.String(': "'); Out.String(tmp); Out.Char('"'); Out.Ln;
     Out.String(ucsText); Out.String(':      "'); Out.String(tmp2); Out.Char('"'); Out.Ln;
+	wrd.trns := tmp;
+
+	Out.Ln; Out.String("getting description"); Out.Ln;
+
+    getDescription(ucsRider, ucsFile, ltmp);
+
     INC(i); 
   UNTIL (i = 1) OR utfRider.eof OR ucsRider.eof;
 
@@ -147,27 +189,8 @@ BEGIN
   Files.Close(outFile);
 END toTab;
 
-PROCEDURE fix;
-VAR
-  utfFile, ucsFile : Files.File;
-  utfRider, ucsRider : Files.Rider;
 BEGIN
-  utfFile := Files.Old(utfText);
-  ucsFile := Files.Old(ucsText);
-  (* fix absent ']' at the end of the transcription of the word "desertion" *)
-  Files.Set(utfRider, utfFile, 1090503);
-  Files.WriteByte(utfRider, 93);
-  Files.Set(ucsRider, ucsFile, 747847);
-  Files.WriteByte(ucsRider, 93);
- 
-  (*Files.Register(utfFile);*)
-  Files.Close(utfFile);
-  (*Files.Register(ucsFile);*)
-  Files.Close(ucsFile);
-END fix;
 
-BEGIN
-  (*fix;*)
   toTab;
 
 END conv.
