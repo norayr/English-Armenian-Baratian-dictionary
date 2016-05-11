@@ -86,7 +86,7 @@ VAR
   utfRider, ucsRider, outRider : Files.Rider;
   wrd : word;
   i : LONGINT;
-  tmp : s.shortstring;
+  tmp, tmp2 : s.shortstring;
 BEGIN
   utfFile := Files.Old(utfText);
   IF utfFile = NIL THEN Out.String(utfText); Out.String(" not found."); Out.Ln; HALT(1); END;
@@ -99,15 +99,18 @@ BEGIN
   i := 0;
   NEW(wrd);
   REPEAT
+    Out.String("getting English word"); Out.Ln;
     getEnglishWord(utfRider, utfFile, tmp);
-    Out.Int(i, 0); Out.Char(' ');    
-    Out.String(tmp); Out.Ln;
-    wrd.name := tmp;
-	dumpString(tmp);
-    getEnglishWord(ucsRider, ucsFile, tmp);
-    Out.Int(i, 0); Out.Char(' ');    
-    Out.String(tmp); Out.Ln;
-    
+    Out.Int(i, 0); Out.Char(' '); Out.String(utfText); Out.String(': "');    
+    Out.String(tmp); Out.Char('"'); Out.Ln;
+    getEnglishWord(ucsRider, ucsFile, tmp2);
+    Out.Int(i, 0); Out.Char(' '); Out.String(ucsText); Out.String(':      "');    
+    Out.String(tmp2); Out.Char('"'); Out.Ln;
+    IF tmp = tmp2 THEN
+	  Out.String("Bingo!"); Out.Ln;
+	  Out.String("Using this word"); Out.Ln;
+	  wrd.name := tmp;
+	END;
     INC(i); 
   UNTIL (i = 1) OR utfRider.eof OR ucsRider.eof;
 
