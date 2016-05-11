@@ -25,7 +25,8 @@ totext:
 	pdftotext -enc UTF-8 $(SRC) $(DST1)
 
 converter:
-	$(VOC) -s ArmsciiUTF.Mod convert.Mod -m
+	#$(VOC) -s ArmsciiUTF.Mod convert.Mod -m
+	$(VOC) -s s.Mod ArmsciiUTF.Mod conv.Mod -m
 
 fix:
 	#remove first 376 lines

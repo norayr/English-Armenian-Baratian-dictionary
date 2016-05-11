@@ -227,7 +227,7 @@ PROCEDURE Go;
        ord, i: INTEGER;
 	   nextWord: BOOLEAN;
 	   str : ArmsciiUTF.string;
-	   l: LONGINT;
+	   (*l: LONGINT;*)
 BEGIN
    f := Files.Old(inputFile);
    IF f # NIL THEN
@@ -248,8 +248,8 @@ BEGIN
 			  WriteChar(ro, 9X); (* write tab *)
 			  readTillTranscription(r, ro);
 			  (*readTillTranscriptionIsOver(r);*)
-			  WriteStaticString(ro, trans[l]);
-			  INC(l);
+			  (*WriteStaticString(ro, trans[l]);
+			  INC(l);*)
 			  (* reading description *)
 			  nextWord := FALSE;
 			  REPEAT

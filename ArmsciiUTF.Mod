@@ -1,33 +1,9 @@
 MODULE ArmsciiUTF;
-
-TYPE string* = POINTER TO ARRAY OF CHAR;
-     uchar* = ARRAY 4 OF CHAR;
+IMPORT s;
+TYPE string* = s.string;
+     uchar* = s.uchar;
 
 VAR map : ARRAY 255 OF uchar;
-
-PROCEDURE StripNull(VAR str : uchar): string;
-VAR pchar : string;
-   i, j : INTEGER;
-BEGIN
-
-   i := 0;
-
-   REPEAT
-       INC(i); 
-   UNTIL str[i] = 0X;
-   
-   NEW(pchar, i+1);
-
-   j := 0;
-   REPEAT
-      pchar^[j] := str[j];
-      INC(j);
-   UNTIL j = i;
- 
-   RETURN pchar
-
-END StripNull;
-
 
 PROCEDURE A2U*(ch : CHAR): string;
 VAR 
@@ -36,7 +12,7 @@ VAR
 BEGIN
 
    str0 := map[ORD(ch)];
-   RETURN StripNull(str0); 
+   RETURN s.StripNull(str0); 
    (*NEW(pch, 4);
    COPY(str0, pch^);
    RETURN pch;*)
