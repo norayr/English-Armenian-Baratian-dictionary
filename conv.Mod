@@ -54,6 +54,27 @@ REPEAT
 UNTIL (ch = 0X) OR (i = j - 1);
 END dumpString;
 
+PROCEDURE getTranscription(VAR r : Files.Rider; VAR tmp: s.shortstring);
+VAR
+  ch : CHAR;
+   i : INTEGER;
+BEGIN
+  (* read till get '[' *)
+  REPEAT
+    Files.Read(r, ch);
+  UNTIL ch = '[';
+  i := 0;
+  tmp[i] := ch;
+  INC(i);
+  (* read till get ']' *)
+  REPEAT
+    Files.Read(r, ch);
+    tmp[i] := ch;
+	INC(i)
+  UNTIL ch = ']';
+  tmp[i] := 0X
+END getTranscription;
+
 PROCEDURE getEnglishWord(VAR r : Files.Rider; VAR f : Files.File; VAR tmp: s.shortstring);
 VAR
   ch : CHAR;
@@ -111,6 +132,12 @@ BEGIN
 	  Out.String("Using this word"); Out.Ln;
 	  wrd.name := tmp;
 	END;
+
+	Out.String("getting transcription"); Out.Ln;
+    getTranscription(utfRider, tmp);
+    getTranscription(ucsRider, tmp2);
+	Out.String(utfText); Out.String(': "'); Out.String(tmp); Out.Char('"'); Out.Ln;
+    Out.String(ucsText); Out.String(':      "'); Out.String(tmp2); Out.Char('"'); Out.Ln;
     INC(i); 
   UNTIL (i = 1) OR utfRider.eof OR ucsRider.eof;
 
