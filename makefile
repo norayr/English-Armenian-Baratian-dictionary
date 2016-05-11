@@ -4,7 +4,8 @@ LOC = http://www.armin.am/images/menus/1720
 SRC = Angleren_bararan.pdf
 NAME = baratian
 DST0 = $(NAME).txt
-DST1 = $(NAME).tab
+DST1 = $(NAME)-utf8.txt
+DST = $(NAME).tab
 AGENT = 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.6) Gecko/20070802 SeaMonkey/1.1.4'
 
 all: get totext fix converter maketab makedict
@@ -18,19 +19,30 @@ get:
 	wget  -U $(AGENT)  -c $(LOC)/$(SRC)
 
 totext:
+	#list encodings with pdftotext -listenc
 	#pdftotext -layout $(SRC) $(DST0)
-	pdftotext -enc Latin1 $(SRC) $(DST0)
+	pdftotext -enc UCS-2 $(SRC) $(DST0)
+	pdftotext -enc UTF-8 $(SRC) $(DST1)
 
 converter:
 	$(VOC) -s ArmsciiUTF.Mod convert.Mod -m
 
 fix:
-	#remove first 375 lines
+	#remove first 376 lines
 	sed -i -e 1,376d $(DST0)
-	#remove lines that start with line break (looks like ^L)
+	sed -i -e 1,376d $(DST1)
+	#remove lines that start with page break (looks like ^L)
 	sed -i '/\o14/ d' $(DST0)
+	sed -i '/\o14/ d' $(DST1)
 	#remove last 430 lines
 	sed -i -n -e :a -e '1,430!{P;N;D;};N;ba' $(DST0)
+	sed -i -n -e :a -e '1,430!{P;N;D;};N;ba' $(DST1)
+	#remove all null characters
+	sed -i 's/\x0//g' $(DST0)
+	sed -i 's/\x0//g' $(DST1)
+	#fix absent ':' at the end (21th position) of the 216th line
+	#sed -i '216s/^\(.\{21\}\)/\1:/' $(DST0)
+	#sed -i '216s/^\(.\{21\}\)/\1:/' $(DST1)
 	#remove lines after double 0A
 	#those are lines with page number and header.
 	#dollar sign has to be doubled otherwise make interprets it as variable
@@ -48,7 +60,7 @@ maketab:
 	./convert
 
 makedict:
-	stardict_tabfile $(DST1)
+	stardict_tabfile $(DST)
 	mkdir -p $(NAME)
 	mv $(NAME).dict $(NAME).idx $(NAME).ifo $(NAME) 
 

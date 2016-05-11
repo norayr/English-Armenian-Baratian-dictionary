@@ -1,10 +1,15 @@
 MODULE convert;
 
-IMPORT Files, Out := Console, ArmsciiUTF;
+IMPORT Files, Out := Console, Strings, ArmsciiUTF;
 
-CONST inputFile = "baratian.txt";
-      outputFile = "baratian.tab";
+CONST inputFile        = "baratian.txt";
+      outputFile       = "baratian.tab";
+      transIn          = "baratian-utf8.txt";
+      wordsCount       = 27053; (*25473*)
 
+TYPE str = ARRAY 255 OF CHAR;
+
+VAR trans : ARRAY wordsCount OF str;  
 
 (*
 PROCEDURE ReadTill(VAR r: Files.Rider; till: CHAR; VAR line: ARRAY OF CHAR);
@@ -65,11 +70,24 @@ BEGIN
 END WriteLine;
 *)
 
+PROCEDURE ReadChar(VAR r : Files.Rider; VAR ch: CHAR);
+BEGIN
+  REPEAT
+    Files.Read(r, ch);
+  UNTIL (ch # 0X) OR r.eof
+END ReadChar;
+
 PROCEDURE WriteChar(VAR r : Files.Rider; ch : CHAR);
 BEGIN
    Files.WriteByte(r, SHORT(ORD(ch))); (* write ascii character *)
    Out.Char(ch);
 END WriteChar;
+
+PROCEDURE WriteStaticString(VAR r : Files.Rider; str0 : str);
+BEGIN
+  Files.WriteBytes(r, str0, Strings.Length(str0));
+  Out.String(str0);
+END WriteStaticString;
 
 PROCEDURE WriteString(VAR r : Files.Rider; str : ArmsciiUTF.string);
 BEGIN
@@ -81,7 +99,8 @@ PROCEDURE readTill(VAR r, ro : Files.Rider; ch : CHAR);
 VAR s : CHAR;
 BEGIN
    REPEAT 
-      Files.Read(r, s);
+      (*Files.Read(r, s);*)
+	  ReadChar(r, s);
       IF s >= 20X THEN
          IF s # ch THEN WriteChar(ro, s) END
       END
@@ -94,7 +113,8 @@ VAR
   i : LONGINT;
 BEGIN
    REPEAT 
-      Files.Read(r, s);
+      (*Files.Read(r, s);*)
+	  ReadChar(r, s);
       (*IF s >= 20X THEN
          IF s # ch THEN Out.Char(s) END
       END*)
@@ -112,10 +132,12 @@ PROCEDURE readTill0(VAR r, ro : Files.Rider; ch : CHAR; VAR eol : BOOLEAN);
 VAR s : CHAR;
 BEGIN
    REPEAT 
-      Files.Read(r, s);
+      (*Files.Read(r, s);*)
+	  ReadChar(r, s);
       IF s # ch THEN WriteChar(ro, s) END;
       IF s = 0AX THEN
-         Files.Read(r, s);
+         (*Files.Read(r, s);*)
+		 ReadChar(r, s);
 	 IF (ORD(s) < 128) & (s # '(') THEN 
 	    WriteChar(ro, 0AX); WriteChar(ro, s); eol := TRUE;
 	 ELSE
@@ -130,7 +152,8 @@ PROCEDURE readTillNot(VAR r, ro : Files.Rider; ch : CHAR);
 VAR s : CHAR;
 BEGIN
    REPEAT 
-      Files.Read(r, s)
+      (*Files.Read(r, s)*)
+	  ReadChar(r, s)
    UNTIL (ch # s) OR r.eof;
       WriteChar(ro, s)
 END readTillNot;
@@ -140,33 +163,56 @@ VAR
   ch : CHAR;
 BEGIN
   REPEAT
-    Files.Read(r, ch);
+    (*Files.Read(r, ch);*)
+	ReadChar(r, ch);
   UNTIL (ch = '[') OR r.eof;
   WriteChar(ro, ch);
 END readTillTranscription;
 
-PROCEDURE readEnglishWord(VAR r, ro : Files.Rider);
+PROCEDURE readTillTranscriptionIsOver(VAR r : Files.Rider);
+VAR
+  ch : CHAR;
+BEGIN
+  REPEAT
+    Files.Read(r, ch);
+	(*ReadChar(r, ch);*)
+  UNTIL (ch = ']') OR r.eof;
+END readTillTranscriptionIsOver;
+
+PROCEDURE readEnglishWord(VAR r, ro : Files.Rider; VAR f : Files.File);
 VAR
   ord : INTEGER;
   ch  : CHAR;
   spaceCount: INTEGER;
   enough : BOOLEAN;
+  i : LONGINT;
+  (*tmp : str; ind : LONGINT;*)
 BEGIN
   spaceCount := 0;
   enough := FALSE;
+  (*ind := 0;*)
   REPEAT
-    Files.Read(r, ch);
+    (*Files.Read(r, ch);*)
+	ReadChar(r, ch);
     ord := ORD(ch);
     IF ord = 32 THEN 
 	  WriteChar(ro, ' '); 
+	  (*tmp[ind] := ' '; INC(ind);*)
 	  INC(spaceCount);
 	  IF spaceCount = 2 THEN enough := TRUE END  
+	(*ELSIF ord = 10 THEN ind := 0*)
+	ELSIF (ord # 91) & ((ord = 44) OR ((ord >=65) & (ord <= 122))) THEN
+      WriteChar(ro, ch); (*tmp[ind] := ch; INC(ind);*)
+	ELSIF (ch = 0AX) THEN enough := TRUE 
+	ELSIF (ch = '[') THEN
+	   i := Files.Pos(r);
+	   Files.Set(r, f, i-1);
+	   enough := TRUE
 	END;
-	IF (ord = 44) OR ((ord >=65) & (ord <= 122)) THEN
-      WriteChar(ro, ch);
-    END;
-	IF (ch = 0AX) THEN enough := TRUE END;
+
   UNTIL enough OR r.eof;
+  (*tmp[ind] := 0X;
+  WriteStaticString(ro, tmp);*)
 END readEnglishWord;
 
 PROCEDURE isInArmsciiRange(VAR ch : CHAR) : BOOLEAN;
@@ -181,6 +227,7 @@ PROCEDURE Go;
        ord, i: INTEGER;
 	   nextWord: BOOLEAN;
 	   str : ArmsciiUTF.string;
+	   l: LONGINT;
 BEGIN
    f := Files.Old(inputFile);
    IF f # NIL THEN
@@ -189,6 +236,7 @@ BEGIN
       fo := Files.New(outputFile);
       IF fo # NIL THEN
          Files.Set(ro, fo, 0);
+		 l := 0;
          WHILE ~r.eof DO
            (*REPEAT
              Files.Read(r, ch);
@@ -196,14 +244,17 @@ BEGIN
             *)
               (* expecting English word *)
               readTillLatin(r, f);
-			  readEnglishWord(r, ro);
-			  (*WriteChar(ro, 9X);*) (* write tab *)
-              WriteChar(ro, 9X);
+			  readEnglishWord(r, ro, f);
+			  WriteChar(ro, 9X); (* write tab *)
 			  readTillTranscription(r, ro);
+			  (*readTillTranscriptionIsOver(r);*)
+			  WriteStaticString(ro, trans[l]);
+			  INC(l);
 			  (* reading description *)
 			  nextWord := FALSE;
 			  REPEAT
-                Files.Read(r, ch);
+                (*Files.Read(r, ch);*)
+				ReadChar(r, ch);
 				IF isInArmsciiRange(ch) THEN
 				  str := ArmsciiUTF.A2U(ch);
 				  WriteString(ro, str)
@@ -214,8 +265,11 @@ BEGIN
                 ELSIF (ch = 03AX) THEN
 				   str := ArmsciiUTF.A2U(023X);
 				   WriteString(ro, str);
-				   Files.Read(r, ch);
+				   (*Files.Read(r, ch);*)
+				   ReadChar(r, ch);
 				   IF ch = 0AX THEN WriteChar(ro, 0AX); nextWord := TRUE END
+                ELSIF ch = 00X THEN
+				   Out.Ln;
 				ELSE IF ORD(ch) > 32 THEN WriteChar(ro, ch) END
 				END
 			  UNTIL nextWord OR r.eof;
@@ -233,8 +287,54 @@ BEGIN
    END
 END Go;
 
+PROCEDURE ExtractTranscriptions;
+VAR
+  f : Files.File;
+  r : Files.Rider;
+  ch : CHAR;
+  i, j : LONGINT;
+  tmp : str;
+BEGIN
+  f := Files.Old(transIn);
+  Files.Set(r, f, 0);
+  i := 0;
+  REPEAT
+    Files.Read(r, ch);
+	IF ch = '[' THEN
+      j := 0;
+	  REPEAT
+	    (*Out.Char(ch);*)
+	    IF i = 6521 THEN Out.Char('!'); END;
+        tmp[j] := ch;
+		Files.Read(r, ch);
+		INC(j);
+	  UNTIL ch = ']';
+	  tmp[j] := ch;
+	  INC(j);
+	  tmp[j] := 0X;
+	  COPY(tmp, trans[i]);
+	  INC(i);
+	  (*Out.Int(i, 0); Out.Char (' '); Out.String(trans[i]); Out.Ln;*)
+	END;
+  UNTIL (i = wordsCount - 1) OR r.eof;
+  Files.Close(f);
+END ExtractTranscriptions;
+
+PROCEDURE Fix;
+VAR
+  f : Files.File;
+  r : Files.Rider;
+BEGIN
+  f := Files.Old(transIn);
+  Files.Set(r, f, 1090505);
+  Files.WriteByte(r, 93); (* absent ']' at the end of the transcription of the word "desertion" *)
+  Files.Register(f);
+  Files.Close(f);
+END Fix;
 
 BEGIN
-Go;
+  Fix;
+  (*ExtractTranscriptions;*)
+  Go;
 
 END convert.
