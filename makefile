@@ -5,6 +5,8 @@ SRC = Angleren_bararan.pdf
 NAME = baratian
 DST0 = $(NAME).txt
 DST1 = $(NAME)-utf8.txt
+DST0f = $(NAME)_fixed.txt
+DST1f = $(NAME)-utf8_fixed.txt
 DST = $(NAME).tab
 AGENT = 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.6) Gecko/20070802 SeaMonkey/1.1.4'
 
@@ -33,7 +35,9 @@ fixer:
 
 fix2:
 	./fixer
-
+	#no ':' at the end of the 'abrade' (line 205, 21) word description
+	sed -i '205s/^\(.\{21\}\)/\1:/' $(DST0f)
+	sed -i '205s/^\(.\{21\}\)/\1:/' $(DST1f)
 fix:
 	#remove first 376 lines
 	sed -i -e 1,376d $(DST0)
