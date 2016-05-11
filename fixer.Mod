@@ -66,6 +66,7 @@ BEGIN
              REPEAT
                Files.Read(R, ch) 
 		     UNTIL ch = 0AX;
+			 Files.WriteByte(outR, 0AX);
 		   ELSE (* second is not number *)
              Files.Set(R, F, pos-1);
 			 Files.Read(R, ch);
@@ -95,6 +96,7 @@ BEGIN
   Files.Register(outF);
   Files.Close(outF);
 END Eliminate;
+
 (*
 PROCEDURE fixLines(fileName: ARRAY OF CHAR);
 VAR
