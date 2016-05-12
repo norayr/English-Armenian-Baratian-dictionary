@@ -101,7 +101,11 @@ BEGIN
 		   END
         ELSE (* not form feed, not number *)
 		  Files.WriteByte(outR, 020X);
-		  Files.WriteByte(outR, ch);
+		  (*IF ch = 03AX THEN
+		    Files.WriteByte(outR, 0A3X);
+		  ELSE*)
+		    Files.WriteByte(outR, ch);
+		  (*END;*)
 		END;
 	  ELSE (* no second 0A *)
         found := FALSE; (* leave 0A only if the following line contains '[' *)

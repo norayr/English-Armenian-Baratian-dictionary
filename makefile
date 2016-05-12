@@ -77,6 +77,8 @@ fix:
 
 maketab:
 	./conv
+	sed -i 's/:/։/g' $(DST)
+	sed -i 's/\./․/g' $(DST)
 
 makedict:
 	stardict_tabfile $(DST)
