@@ -124,15 +124,21 @@ BEGIN
 	    Files.WriteByte(outR, 022X); (* quotation mark *)
 	  ELSIF (ch = 0A8X) THEN (* this is somehow և in the text *)
 	    Files.WriteByte(outR, 0A2X);
+	  ELSIF (ch = 02DX) THEN (* hyphen *)
+	    Files.WriteByte(outR, 0ADX);
+	  ELSIF (ch = 03AX) THEN (* : *)
+	    Files.WriteByte(outR, 0A3X);
 	  ELSIF (ch = 020X) THEN
 	    pos := Files.Pos(R);
 		Files.Read(R, ch);
 		IF ch = 019X (* should be ' in text *) THEN
           Files.WriteByte(outR, 027X);
 		ELSIF ch = 01DX THEN
-          Files.WriteByte(outR, 0A6X); (*  »  *)
+         (* Files.WriteByte(outR, 0A6X);*) (*  »  *)
+          Files.WriteByte(outR, 022X); (*  "  *)
 		ELSIF ch = 01CX THEN
-		  Files.WriteByte(outR, 0A7X); (*  «  *)
+		  (*Files.WriteByte(outR, 0A7X);*) (*  «  *)
+		  Files.WriteByte(outR, 022X); (*  "  *)
 		ELSE
           Files.Set(R, F, pos);
 		  Files.WriteByte(outR, 020X);
