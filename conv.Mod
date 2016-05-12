@@ -204,7 +204,7 @@ BEGIN
     getTranscription(ucsRider, tmp2);
 	Out.String(utfText); Out.String(': "'); Out.String(tmp); Out.Char('"'); Out.Ln;
     Out.String(ucsText); Out.String(':      "'); Out.String(tmp2); Out.Char('"'); Out.Ln;
-    wrd.trns := tmp2;
+    wrd.trns := tmp;
 	Out.Ln; Out.String("getting description"); Out.Ln;
 
     getDescription(ucsRider, ucsFile, ltmp);
