@@ -30,7 +30,7 @@ END isLatin;
 
 PROCEDURE isArmscii(VAR ch : CHAR) : BOOLEAN;
 BEGIN
-IF (ORD(ch) >= 162) & (ORD(ch) <= 254) THEN RETURN TRUE ELSE RETURN FALSE END
+IF (ORD(ch) >= 162) & (ORD(ch) <= 254) OR (ORD(ch) = 45) OR (ORD(ch) = 58) THEN RETURN TRUE ELSE RETURN FALSE END
 END isArmscii;
 
 PROCEDURE ReadChar(VAR r : Files.Rider; VAR ch: CHAR);
@@ -62,22 +62,36 @@ PROCEDURE WriteConvertLongString(VAR r : Files.Rider; lstr: s.longstring);
 VAR
   i : LONGINT;
   str : s.string;
+  ch : CHAR;
 BEGIN
   i := 0;
   REPEAT
-    IF isArmscii(lstr[i]) THEN
-      str := ArmsciiUTF.A2U(lstr[i]);
+    ch := lstr[i];
+    IF isArmscii(ch) & (ch # 0A8X) (* wrong և *) THEN
+      str := ArmsciiUTF.A2U(ch);
 	  WriteString(r, str);
 	ELSE
-	  (*IF lstr[i] = 01CX THEN 
-	    WriteChar(r, '"')
-	  (*ELSIF lstr[i] = 03X THEN
-		str := ArmsciiUTF.A2U(
-		*)
+	  IF ch = 03X THEN
+	    str := ArmsciiUTF.A2U(0B5X); (* բ looks broken in text *)
+		WriteString(r, str);
+	  ELSIF (ch = 0A8X) THEN (* this is somehow և in the text *)
+	    str := ArmsciiUTF.A2U(0A2X);
+		WriteString(r, str);
+	  ELSIF  (ch = 01CX) THEN
+	    WriteChar(r, '"');
+	  ELSIF (ch = 01DX) THEN
+	    WriteChar(r, '"');
+	  ELSIF (ch = 019X) THEN
+	    WriteChar(r, "'");
+	  ELSIF (ch = 02DX) THEN (* hyphen *)
+	    str := ArmsciiUTF.A2U(0ADX);
+		WriteString(r, str);
+	  ELSIF (ch = 03AX) THEN (* end stop *)
+	    str := ArmsciiUTF.A2U(0A3X);
+		WriteString(r, str);
 	  ELSE
-	  *)
-	  WriteChar(r, lstr[i]);
-	  (*END*)
+	    WriteChar(r, lstr[i]);
+	  END
 	END;
 	INC(i)
   UNTIL (lstr[i] = 0X) OR (i = LEN(lstr));

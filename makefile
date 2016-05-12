@@ -59,6 +59,12 @@ fix:
 	#remove all null characters
 	sed -i 's/\x0//g' $(DST0)
 	sed -i 's/\x0//g' $(DST1)
+	#remove line 30
+	#sed -i '30d' $(DST0)
+	#sed -i '30d' $(DST1)
+	#remove line 32 (* which became 31 after we removed line 30 *)
+	#sed -i '31d' $(DST0)
+	#sed -i '31d' $(DST1)
 	#fix absent ':' at the end (21th position) of the 216th line
 	#sed -i '216s/^\(.\{21\}\)/\1:/' $(DST0)
 	#sed -i '216s/^\(.\{21\}\)/\1:/' $(DST1)
@@ -77,8 +83,8 @@ fix:
 
 maketab:
 	./conv
-	sed -i 's/:/։/g' $(DST)
-	sed -i 's/\./․/g' $(DST)
+	#sed -i 's/:/։/g' $(DST)
+	#sed -i 's/\./․/g' $(DST)
 
 makedict:
 	stardict_tabfile $(DST)

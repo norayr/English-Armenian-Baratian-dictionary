@@ -100,12 +100,20 @@ BEGIN
 			 Files.WriteByte(outR, 020X);
 		   END
         ELSE (* not form feed, not number *)
+		  Files.WriteByte(outR, 0AX);
+		  Files.WriteByte(outR, ch);
+		  REPEAT
+            Files.Read(R, ch);
+			IF ch # 0AX THEN Files.WriteByte(outR, ch) END
+		  UNTIL ch = 0AX;
 		  Files.WriteByte(outR, 020X);
-		  (*IF ch = 03AX THEN
-		    Files.WriteByte(outR, 0A3X);
-		  ELSE*)
-		    Files.WriteByte(outR, ch);
-		  (*END;*)
+		  Files.Read(R, ch);
+		  IF ch = 0AX THEN
+		    REPEAT
+		      Files.Read(R, ch);
+		      IF ch # 0AX THEN Files.WriteByte(outR, ch) END
+		    UNTIL ch = 0AX;
+		  END
 		END;
 	  ELSE (* no second 0A *)
         found := FALSE; (* leave 0A only if the following line contains '[' *)
@@ -121,7 +129,7 @@ BEGIN
         Files.Set(R, F, pos);
 	  END;
 	ELSE (* not 0A *)
-	  IF ch = 03X THEN
+	  (*IF ch = 03X THEN
         Files.WriteByte(outR, 0B5X); (* բ looks broken in text *)
 		Files.Read(R, ch);
 	  ELSIF (ch = 01CX) THEN
@@ -144,14 +152,13 @@ BEGIN
 		  (*Files.WriteByte(outR, 0A7X);*) (*  «  *)
 		  Files.WriteByte(outR, 022X); (*  "  *)
 		ELSE
-          Files.Set(R, F, pos);
+		*)
+        (*  Files.Set(R, F, pos);
 		  Files.WriteByte(outR, 020X);
-		END
-	  ELSIF ch = ':' THEN
-	    Files.WriteByte(outR, 0A3X); (* correct :, վերջակէտ *)
-	  ELSE
+		END*)
+	 (* ELSE*)
 	    Files.WriteByte(outR, ch)
-	  END
+	  (*END*)
 	END;
   UNTIL R.eof;
   Files.Close(F);
