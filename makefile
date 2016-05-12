@@ -35,7 +35,9 @@ fixer:
 
 fix2:
 	./fixer
+	#everything is fixed by the fixer. no need in further lines.
 	#no ':' at the end of the 'abrade' (line 205, 21) word description
+	#also found absorbedly like that.
 	#does not work on non utf-8 file for unknown to me reason.
 	#sed -i '205s/^\(.\{21\}\)/\1:/' $(DST0f)
 	#sed -i '205s/^\(.\{21\}\)/\1:/' $(DST1f)

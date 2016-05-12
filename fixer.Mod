@@ -31,8 +31,9 @@ PROCEDURE Eliminate(fileName, outName : ARRAY OF CHAR);
 VAR
   R, outR : Files.Rider;
   F, outF : Files.File;
-  ch : CHAR;
+  ch, ch1 : CHAR;
   pos, pos1 : LONGINT;
+  found: BOOLEAN;
 BEGIN
   F := Files.Old(fileName);
   IF F = NIL THEN Out.String(fileName); Out.String(" not found."); Out.Ln; HALT(1) END;
@@ -54,7 +55,7 @@ BEGIN
 		  UNTIL ch = 0AX;
 		    Files.WriteByte(outR, 0AX);
 		ELSIF isNumber(ch) THEN (* page number found *)
-		   pos1 := Files.Pos(R);
+		   ch1 := ch;
            Files.Read(R, ch); 
            IF isNumber(ch) THEN
 		     REPEAT
@@ -68,25 +69,49 @@ BEGIN
 		     UNTIL ch = 0AX;
 			 Files.WriteByte(outR, 0AX);
 		   ELSE (* second is not number *)
-             Files.Set(R, F, pos-1);
+             (*Files.Set(R, F, pos-1);
 			 Files.Read(R, ch);
 			 Files.WriteByte(outR, ch);
              Files.Read(R, ch);
 			 Files.WriteByte(outR, ch);
              Files.Read(R, ch);
-			 Files.WriteByte(outR, ch);
-             (*Files.Read(R, ch);
 			 Files.WriteByte(outR, ch);*)
+			 Files.WriteByte(outR, 020X);
+			 Files.WriteByte(outR, ch1);
+			 Files.WriteByte(outR, 020X);
 		   END
         ELSE (* not form feed, not number *)
-		  Files.WriteByte(outR, 0AX); (* writing just double eol and char *)
-		  Files.WriteByte(outR, 0AX);
+		  Files.WriteByte(outR, 020X); (* writing just double eol and char *)
+		  (*Files.WriteByte(outR, 0AX);*)
 		  Files.WriteByte(outR, ch);
+		  (*pos1 := Files.Pos(R);
+		  found := FALSE;
+		  REPEAT
+            Files.Read(R, ch);
+			IF ch = '[' THEN found := TRUE END;
+		  UNTIL (ch = 0AX) OR R.eof;
+		  IF ~found THEN
+            Files.Set(R, F, pos1-1);
+			Files.WriteByte(outR, 020X);
+			(*Files.WriteByte(outR, ch1);*)
+		  END;*)
 		END;
 	  ELSE (* no second 0A *)
-        Files.Set(R, F, pos-1);
+        (*Files.Set(R, F, pos-1);
 	    Files.Read(R, ch);
-	    Files.WriteByte(outR, ch);
+	    Files.WriteByte(outR, ch);*)
+        found := FALSE;
+		REPEAT
+          Files.Read(R, ch);
+		  IF ch = '[' THEN found := TRUE END;
+		UNTIL (ch = 0AX) OR R.eof;
+		IF ~found THEN
+		  Files.WriteByte(outR, 020X);
+		  (*Files.WriteByte(outR, ch1);*)
+		ELSE
+		   Files.WriteByte(outR, 0AX);
+		END;
+        Files.Set(R, F, pos);
 	  END;
 	ELSE (* not 0A *)
 	  Files.WriteByte(outR, ch);
@@ -119,6 +144,8 @@ BEGIN
 	   END;
 	END;
   UNTIL R.eof;
+  Files.Register(F);
+  Files.Close(F);
 END fixLines;
 
 PROCEDURE fixLineEndings(fileName: ARRAY OF CHAR);
@@ -184,12 +211,13 @@ BEGIN
  
   Eliminate(utfText, utfOutText);  
   Eliminate(ucsText, ucsOutText);  
-
+(*
   (* replace  all double eols with ' ' *)
   fixLines(utfOutText);
   fixLines(ucsOutText);
   (* replace all eols with ' ' if there is a '[' at the next line *)
   fixLineEndings(utfOutText);
   fixLineEndings(ucsOutText);
+*)  
 END fixer.
 
