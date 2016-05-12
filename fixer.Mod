@@ -5,7 +5,7 @@ CONST
       ucsOutText          = "baratian_fixed.txt";
       utfText          = "baratian-utf8.txt";
       utfOutText          = "baratian-utf8_fixed.txt";
-
+      
 PROCEDURE fixAbsentSB(fileName: ARRAY OF CHAR; pos: LONGINT);
 VAR
   r : Files.Rider;
@@ -34,7 +34,10 @@ VAR
   ch, ch1 : CHAR;
   pos, pos1 : LONGINT;
   found: BOOLEAN;
+  armsciiB, armsciiVerjaket : CHAR;
 BEGIN
+  armsciiB := 0B5X;
+  armsciiVerjaket := 0A3X;
   F := Files.Old(fileName);
   IF F = NIL THEN Out.String(fileName); Out.String(" not found."); Out.Ln; HALT(1) END;
   Files.Set(R, F, 0);
@@ -117,7 +120,16 @@ BEGIN
         Files.Set(R, F, pos);
 	  END;
 	ELSE (* not 0A *)
-	  Files.WriteByte(outR, ch);
+	  IF ch = 03X THEN
+        Files.WriteByte(outR, armsciiB); (* բ looks broken in text *)
+		Files.Read(R, ch);
+	  ELSIF ch = 01CX THEN
+	    Files.WriteByte(outR, 022X); (* quotation mark *)
+	  ELSIF ch = ':' THEN
+	    Files.WriteByte(outR, armsciiVerjaket); (* correct : *)
+	  ELSE
+	    Files.WriteByte(outR, ch)
+	  END
 	END;
   UNTIL R.eof;
   Files.Close(F);

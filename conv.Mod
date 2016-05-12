@@ -69,15 +69,15 @@ BEGIN
       str := ArmsciiUTF.A2U(lstr[i]);
 	  WriteString(r, str);
 	ELSE
-	  IF lstr[i] = 01CX THEN 
+	  (*IF lstr[i] = 01CX THEN 
 	    WriteChar(r, '"')
 	  (*ELSIF lstr[i] = 03X THEN
-	    (*Out.String("03X found?"); Out.Ln;*)
 		str := ArmsciiUTF.A2U(
 		*)
 	  ELSE
+	  *)
 	  WriteChar(r, lstr[i]);
-	  END
+	  (*END*)
 	END;
 	INC(i)
   UNTIL (lstr[i] = 0X) OR (i = LEN(lstr));
@@ -217,7 +217,7 @@ BEGIN
 	WriteConvertLongString(outRider, ltmp);
     WriteChar(outRider, 0AX);
     INC(i); 
-  UNTIL (i = 1) OR utfRider.eof OR ucsRider.eof;
+  UNTIL (i = 5) OR utfRider.eof OR ucsRider.eof;
 
   Files.Close(utfFile);
   Files.Close(ucsFile);

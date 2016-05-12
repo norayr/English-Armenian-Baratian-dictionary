@@ -90,3 +90,5 @@ clean:
 	#rm $(DST0)
 	#rm $(DST1)
 	rm .tmp*
+	rm fixer
+	rm conv
