@@ -18,7 +18,7 @@ almost_all: get totext fix fix2 maketab makedict
 # if we don't use -U option to spoof the site then it does not return the file but returns 403 forbidden error.
 # not in this case. but will not harm. (:
 get:
-	wget  -U $(AGENT)  -c $(LOC)/$(SRC)
+	#wget  -U $(AGENT)  -c $(LOC)/$(SRC)
 
 totext:
 	#list encodings with pdftotext -listenc

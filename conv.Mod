@@ -74,6 +74,8 @@ BEGIN
 	  IF ch = 03X THEN
 	    str := ArmsciiUTF.A2U(0B5X); (* բ looks broken in text *)
 		WriteString(r, str);
+	  ELSIF ch = 05X THEN
+	    str := ArmsciiUTF.A2U(0A2X); (* sometimes և is that *)
 	  ELSIF (ch = 0A8X) THEN (* this is somehow և in the text *)
 	    str := ArmsciiUTF.A2U(0A2X);
 		WriteString(r, str);
@@ -90,7 +92,9 @@ BEGIN
 	    str := ArmsciiUTF.A2U(0A3X);
 		WriteString(r, str);
 	  ELSE
-	    WriteChar(r, lstr[i]);
+		IF ((ch >= 020X) & (ch <= 07EX)) OR ((ch >= 0A2X) & (ch <= 0FEX)) THEN
+	      WriteChar(r, ch)
+		END
 	  END
 	END;
 	INC(i)
@@ -231,7 +235,7 @@ BEGIN
 	WriteConvertLongString(outRider, ltmp);
     WriteChar(outRider, 0AX);
     INC(i); 
-  UNTIL (i = 7) OR utfRider.eof OR ucsRider.eof;
+  UNTIL (i = 30) OR utfRider.eof OR ucsRider.eof;
 
   Files.Close(utfFile);
   Files.Close(ucsFile);
