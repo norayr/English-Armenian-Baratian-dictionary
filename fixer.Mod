@@ -130,8 +130,8 @@ BEGIN
 	    Files.WriteByte(outR, 0A2X);
 	  (*ELSIF (ch = 02DX) THEN (* hyphen *)
 	    Files.WriteByte(outR, 0ADX);*)
-	  ELSIF (ch = 03AX) THEN (* : *)
-	    Files.WriteByte(outR, 0A3X);
+	  (*ELSIF (ch = 03AX) THEN (* : *)
+	    Files.WriteByte(outR, 0A3X);*)
 	  ELSIF (ch = 020X) THEN
 	    pos := Files.Pos(R);
 		Files.Read(R, ch);
