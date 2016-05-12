@@ -34,10 +34,7 @@ VAR
   ch, ch1 : CHAR;
   pos, pos1 : LONGINT;
   found: BOOLEAN;
-  armsciiB, armsciiVerjaket : CHAR;
 BEGIN
-  armsciiB := 0B5X;
-  armsciiVerjaket := 0A3X;
   F := Files.Old(fileName);
   IF F = NIL THEN Out.String(fileName); Out.String(" not found."); Out.Ln; HALT(1) END;
   Files.Set(R, F, 0);
@@ -121,12 +118,27 @@ BEGIN
 	  END;
 	ELSE (* not 0A *)
 	  IF ch = 03X THEN
-        Files.WriteByte(outR, armsciiB); (* բ looks broken in text *)
+        Files.WriteByte(outR, 0B5X); (* բ looks broken in text *)
 		Files.Read(R, ch);
-	  ELSIF ch = 01CX THEN
+	  ELSIF (ch = 01CX) THEN
 	    Files.WriteByte(outR, 022X); (* quotation mark *)
+	  ELSIF (ch = 0A8X) THEN (* this is somehow և in the text *)
+	    Files.WriteByte(outR, 0A2X);
+	  ELSIF (ch = 020X) THEN
+	    pos := Files.Pos(R);
+		Files.Read(R, ch);
+		IF ch = 019X (* should be ' in text *) THEN
+          Files.WriteByte(outR, 027X);
+		ELSIF ch = 01DX THEN
+          Files.WriteByte(outR, 0A6X); (*  »  *)
+		ELSIF ch = 01CX THEN
+		  Files.WriteByte(outR, 0A7X); (*  «  *)
+		ELSE
+          Files.Set(R, F, pos);
+		  Files.WriteByte(outR, 020X);
+		END
 	  ELSIF ch = ':' THEN
-	    Files.WriteByte(outR, armsciiVerjaket); (* correct : *)
+	    Files.WriteByte(outR, 0A3X); (* correct :, վերջակէտ *)
 	  ELSE
 	    Files.WriteByte(outR, ch)
 	  END
