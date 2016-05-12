@@ -36,8 +36,14 @@ fixer:
 fix2:
 	./fixer
 	#no ':' at the end of the 'abrade' (line 205, 21) word description
-	sed -i '205s/^\(.\{21\}\)/\1:/' $(DST0f)
-	sed -i '205s/^\(.\{21\}\)/\1:/' $(DST1f)
+	#does not work on non utf-8 file for unknown to me reason.
+	#sed -i '205s/^\(.\{21\}\)/\1:/' $(DST0f)
+	#sed -i '205s/^\(.\{21\}\)/\1:/' $(DST1f)
+	#remove empty lines
+	#sed -i '/^$$/d' $(DST0f)
+	#sed -i '/^$$/d' $(DST1f)
+	#change 0A [ sequence to ' ['
+	#sed -i 's/o12[/ [/g' $(DST0f)
 fix:
 	#remove first 376 lines
 	sed -i -e 1,376d $(DST0)

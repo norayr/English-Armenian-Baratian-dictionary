@@ -97,24 +97,61 @@ BEGIN
   Files.Close(outF);
 END Eliminate;
 
-(*
 PROCEDURE fixLines(fileName: ARRAY OF CHAR);
 VAR
   F : Files.File;
   R : Files.Rider;
   ch : CHAR;
+  pos : LONGINT;
 BEGIN
   F := Files.Old(fileName);
-  IF f = NIL THEN Out.String(fileName); Out.String(" not found."); Out.Ln; HALT(1) END;
+  IF F = NIL THEN Out.String(fileName); Out.String(" not found."); Out.Ln; HALT(1) END;
   Files.Set(R, F, 0);
   REPEAT
     Files.Read(R, ch);
 	IF ch = 0AX THEN
-	  if isNextLineWord(R) THEN
+	   pos := Files.Pos(R);
+	   Files.Read(R, ch);
+	   IF ch = 0AX THEN
+         Files.Set(R, F, pos-1);
+		 Files.WriteByte(R, 020X);
+		 Files.WriteByte(R, 020X);
+	   END;
 	END;
   UNTIL R.eof;
 END fixLines;
-*)
+
+PROCEDURE fixLineEndings(fileName: ARRAY OF CHAR);
+VAR
+  F : Files.File;
+  R : Files.Rider;
+  ch : CHAR;
+  pos : LONGINT;
+  found : BOOLEAN;
+BEGIN
+  F := Files.Old(fileName);
+  IF F = NIL THEN Out.String(fileName); Out.String(" not found."); Out.Ln; HALT(1) END;
+  Files.Set(R, F, 0);
+  REPEAT
+    Files.Read(R, ch);
+    IF ch = 0AX THEN
+      pos := Files.Pos(R);
+      (* check if next line contains '[' character *)
+      found := FALSE;
+      REPEAT
+        Files.Read(R, ch);
+        IF ch = '[' THEN found := TRUE END 
+      UNTIL (ch = 0AX) OR R.eof;
+      IF ~found THEN
+        Files.Set(R, F, pos-1);
+        Files.WriteByte(R, 020X);
+      END
+    END;
+  UNTIL R.eof;
+  Files.Register(F);
+  Files.Close(F);
+END fixLineEndings;
+
 BEGIN
   (* fix absent ']' at the end of the transcription of the word "desertion" *)
 
@@ -148,7 +185,11 @@ BEGIN
   Eliminate(utfText, utfOutText);  
   Eliminate(ucsText, ucsOutText);  
 
-  (* replace eols with ' ' if next line does not contain '[' *)
-  (*fixLines(utfOutText);*)
+  (* replace  all double eols with ' ' *)
+  fixLines(utfOutText);
+  fixLines(ucsOutText);
+  (* replace all eols with ' ' if there is a '[' at the next line *)
+  fixLineEndings(utfOutText);
+  fixLineEndings(ucsOutText);
 END fixer.
 
