@@ -62,7 +62,7 @@ BEGIN
 		       IF ch = '[' THEN found := TRUE END;
 		     UNTIL (ch = 0AX) OR R.eof;
 		     IF ~found THEN
-(*		       Files.WriteByte(outR, 020X);*)
+		       Files.WriteByte(outR, 020X);
 		     ELSE
 		       Files.WriteByte(outR, 0AX);
 		     END;
@@ -89,7 +89,7 @@ BEGIN
 		       IF ch = '[' THEN found := TRUE END;
 		     UNTIL (ch = 0AX) OR R.eof;
 		     IF ~found THEN
-		       (*Files.WriteByte(outR, 020X);*)
+		       Files.WriteByte(outR, 020X);
 		     ELSE
 		       Files.WriteByte(outR, 0AX);
 		     END;
