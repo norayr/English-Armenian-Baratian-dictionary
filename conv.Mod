@@ -2,9 +2,9 @@ MODULE conv;
 
 IMPORT Files, Out := Console, Strings, s, ArmsciiUTF;
 
-CONST ucsText          = "baratian.txt";
+CONST ucsText          = "baratian_fixed.txt";
       outputText       = "baratian.tab";
-      utfText          = "baratian-utf8.txt";
+      utfText          = "baratian-utf8_fixed.txt";
       wordsCount       = 27053; (*25473*)
 
 TYPE 
@@ -15,6 +15,23 @@ TYPE
           desc : s.longstring; 
 		  next : word;
      END;
+
+PROCEDURE isLatin(ch : CHAR): BOOLEAN;
+VAR
+  o : LONGINT;
+BEGIN
+  o := ORD(ch);
+  IF ((o >= 65) & (o <= 90)) OR ((o >= 97) & (o <= 122)) THEN 
+    RETURN TRUE 
+  ELSE 
+    RETURN FALSE
+  END
+END isLatin;
+
+PROCEDURE isArmscii(VAR ch : CHAR) : BOOLEAN;
+BEGIN
+IF (ORD(ch) >= 162) & (ORD(ch) <= 254) THEN RETURN TRUE ELSE RETURN FALSE END
+END isArmscii;
 
 PROCEDURE ReadChar(VAR r : Files.Rider; VAR ch: CHAR);
 BEGIN
@@ -41,6 +58,31 @@ BEGIN
   Out.String(str^);
 END WriteString;
 
+PROCEDURE WriteConvertLongString(VAR r : Files.Rider; lstr: s.longstring);
+VAR
+  i : LONGINT;
+  str : s.string;
+BEGIN
+  i := 0;
+  REPEAT
+    IF isArmscii(lstr[i]) THEN
+      str := ArmsciiUTF.A2U(lstr[i]);
+	  WriteString(r, str);
+	ELSE
+	  IF lstr[i] = 01CX THEN 
+	    WriteChar(r, '"')
+	  (*ELSIF lstr[i] = 03X THEN
+	    (*Out.String("03X found?"); Out.Ln;*)
+		str := ArmsciiUTF.A2U(
+		*)
+	  ELSE
+	  WriteChar(r, lstr[i]);
+	  END
+	END;
+	INC(i)
+  UNTIL (lstr[i] = 0X) OR (i = LEN(lstr));
+END WriteConvertLongString;
+
 PROCEDURE dumpString(VAR str: s.shortstring);
 VAR
   ch : CHAR;
@@ -54,38 +96,23 @@ REPEAT
 UNTIL (ch = 0X) OR (i = j - 1);
 END dumpString;
 
-PROCEDURE isLatin(ch : CHAR): BOOLEAN;
-VAR
-  o : LONGINT;
-BEGIN
-  o := ORD(ch);
-  IF ((o >= 65) & (o <= 90)) OR ((o >= 97) & (o <= 122)) THEN 
-    RETURN TRUE 
-  ELSE 
-    RETURN FALSE
-  END
-END isLatin;
-
-PROCEDURE isArmscii(VAR ch : CHAR) : BOOLEAN;
-BEGIN
-IF (ORD(ch) >= 162) & (ORD(ch) <= 254) THEN RETURN TRUE ELSE RETURN FALSE END
-END isArmscii;
-
 PROCEDURE getDescription(VAR r : Files.Rider; VAR f : Files.File; VAR tmp: s.longstring);
-VAR ch : CHAR;
-    i, pos: LONGINT;
-	enough: BOOLEAN;
+VAR 
+  ch: CHAR;
+  i: LONGINT;
+  enough: BOOLEAN;
 BEGIN
   i := 0;
   enough := FALSE;
   REPEAT
     Files.Read(r, ch);
-    IF isArmscii(ch) THEN
-	tmp[i] := ch;
-	INC(i);
-	ELSE
-      
-	END;
+	IF (ch # 0AX) THEN
+	  tmp[i] := ch;
+	  INC(i);
+    ELSIF ch = 0AX THEN
+	  enough := TRUE;
+	  tmp[i] := 0X;
+	END
   UNTIL enough;
 END getDescription;
 
@@ -167,6 +194,9 @@ BEGIN
 	  Out.String("Bingo!"); Out.Ln;
 	  Out.String("Using this word"); Out.Ln;
 	  wrd.name := tmp;
+	ELSE
+	  Out.String("something went wrong!"); Out.Ln;
+	  HALT(1)
 	END;
 
 	Out.Ln; Out.String("getting transcription"); Out.Ln;
@@ -174,12 +204,18 @@ BEGIN
     getTranscription(ucsRider, tmp2);
 	Out.String(utfText); Out.String(': "'); Out.String(tmp); Out.Char('"'); Out.Ln;
     Out.String(ucsText); Out.String(':      "'); Out.String(tmp2); Out.Char('"'); Out.Ln;
-	wrd.trns := tmp;
-
+    wrd.trns := tmp2;
 	Out.Ln; Out.String("getting description"); Out.Ln;
 
     getDescription(ucsRider, ucsFile, ltmp);
-
+    getDescription(utfRider, utfFile, ltmp2);
+    
+	Out.String("writing to tab file"); Out.Ln;
+    WriteStaticString(outRider, wrd.name);
+	WriteChar(outRider, 09X);
+	WriteStaticString(outRider, wrd.trns);
+	WriteConvertLongString(outRider, ltmp);
+    WriteChar(outRider, 0AX);
     INC(i); 
   UNTIL (i = 1) OR utfRider.eof OR ucsRider.eof;
 
