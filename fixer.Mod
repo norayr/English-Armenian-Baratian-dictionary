@@ -56,7 +56,14 @@ BEGIN
 		  (*Files.WriteByte(outR, 0AX);*)
           (* leave 0A only if the following line contains '[' *)
 			 pos1 := Files.Pos(R);
-                found := FALSE;
+             found := FALSE;
+	         (* here could be unpredictable 0A which has to be handled *)
+			 Files.Read(R, ch);
+			 IF ch # 0AX THEN
+               Files.Set(R, F, pos1)
+			 ELSE
+			   Files.WriteByte(outR, 0AX);
+			 END;
 	         REPEAT
                Files.Read(R, ch);
 		       IF ch = '[' THEN found := TRUE END;
@@ -83,8 +90,15 @@ BEGIN
 		     UNTIL ch = 0AX;
           (* leave 0A only if the following line contains '[' *)
 			 pos1 := Files.Pos(R);
-                found := FALSE;
-	         REPEAT
+             found := FALSE;
+	         (* here could be unpredictable 0A which has to be handled *)
+			 Files.Read(R, ch);
+			 IF ch # 0AX THEN
+               Files.Set(R, F, pos1)
+			 ELSE
+			   Files.WriteByte(outR, 0AX);
+			 END;
+			 REPEAT
                Files.Read(R, ch);
 		       IF ch = '[' THEN found := TRUE END;
 		     UNTIL (ch = 0AX) OR R.eof;
