@@ -53,7 +53,21 @@ BEGIN
 		  REPEAT
             Files.Read(R, ch);
 		  UNTIL ch = 0AX;
-		    Files.WriteByte(outR, 0AX);
+		  (*Files.WriteByte(outR, 0AX);*)
+          (* leave 0A only if the following line contains '[' *)
+			 pos1 := Files.Pos(R);
+                found := FALSE;
+	         REPEAT
+               Files.Read(R, ch);
+		       IF ch = '[' THEN found := TRUE END;
+		     UNTIL (ch = 0AX) OR R.eof;
+		     IF ~found THEN
+(*		       Files.WriteByte(outR, 020X);*)
+		     ELSE
+		       Files.WriteByte(outR, 0AX);
+		     END;
+             Files.Set(R, F, pos1);
+
 		ELSIF isNumber(ch) THEN (* page number found *)
 		   ch1 := ch;
            Files.Read(R, ch); 
@@ -67,47 +81,36 @@ BEGIN
              REPEAT
                Files.Read(R, ch) 
 		     UNTIL ch = 0AX;
-			 Files.WriteByte(outR, 0AX);
+          (* leave 0A only if the following line contains '[' *)
+			 pos1 := Files.Pos(R);
+                found := FALSE;
+	         REPEAT
+               Files.Read(R, ch);
+		       IF ch = '[' THEN found := TRUE END;
+		     UNTIL (ch = 0AX) OR R.eof;
+		     IF ~found THEN
+		       (*Files.WriteByte(outR, 020X);*)
+		     ELSE
+		       Files.WriteByte(outR, 0AX);
+		     END;
+             Files.Set(R, F, pos1);
 		   ELSE (* second is not number *)
-             (*Files.Set(R, F, pos-1);
-			 Files.Read(R, ch);
-			 Files.WriteByte(outR, ch);
-             Files.Read(R, ch);
-			 Files.WriteByte(outR, ch);
-             Files.Read(R, ch);
-			 Files.WriteByte(outR, ch);*)
 			 Files.WriteByte(outR, 020X);
 			 Files.WriteByte(outR, ch1);
 			 Files.WriteByte(outR, 020X);
 		   END
         ELSE (* not form feed, not number *)
-		  Files.WriteByte(outR, 020X); (* writing just double eol and char *)
-		  (*Files.WriteByte(outR, 0AX);*)
+		  Files.WriteByte(outR, 020X);
 		  Files.WriteByte(outR, ch);
-		  (*pos1 := Files.Pos(R);
-		  found := FALSE;
-		  REPEAT
-            Files.Read(R, ch);
-			IF ch = '[' THEN found := TRUE END;
-		  UNTIL (ch = 0AX) OR R.eof;
-		  IF ~found THEN
-            Files.Set(R, F, pos1-1);
-			Files.WriteByte(outR, 020X);
-			(*Files.WriteByte(outR, ch1);*)
-		  END;*)
 		END;
 	  ELSE (* no second 0A *)
-        (*Files.Set(R, F, pos-1);
-	    Files.Read(R, ch);
-	    Files.WriteByte(outR, ch);*)
-        found := FALSE;
+        found := FALSE; (* leave 0A only if the following line contains '[' *)
 		REPEAT
           Files.Read(R, ch);
 		  IF ch = '[' THEN found := TRUE END;
 		UNTIL (ch = 0AX) OR R.eof;
 		IF ~found THEN
 		  Files.WriteByte(outR, 020X);
-		  (*Files.WriteByte(outR, ch1);*)
 		ELSE
 		   Files.WriteByte(outR, 0AX);
 		END;
