@@ -128,8 +128,8 @@ BEGIN
 	    Files.WriteByte(outR, 022X); (* quotation mark *)
 	  ELSIF (ch = 0A8X) THEN (* this is somehow և in the text *)
 	    Files.WriteByte(outR, 0A2X);
-	  ELSIF (ch = 02DX) THEN (* hyphen *)
-	    Files.WriteByte(outR, 0ADX);
+	  (*ELSIF (ch = 02DX) THEN (* hyphen *)
+	    Files.WriteByte(outR, 0ADX);*)
 	  ELSIF (ch = 03AX) THEN (* : *)
 	    Files.WriteByte(outR, 0A3X);
 	  ELSIF (ch = 020X) THEN
