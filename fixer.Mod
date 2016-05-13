@@ -3,8 +3,10 @@ IMPORT Files, Out := Console;
 CONST 
       ucsText          = "baratian.txt";
       ucsOutText          = "baratian_fixed.txt";
+      ucsOutText1          = "baratian_fixed_.txt";
       utfText          = "baratian-utf8.txt";
       utfOutText          = "baratian-utf8_fixed.txt";
+      utfOutText1          = "baratian-utf8_fixed_.txt";
       
 PROCEDURE fixAbsentSB(fileName: ARRAY OF CHAR; pos: LONGINT);
 VAR
@@ -174,7 +176,26 @@ BEGIN
   Files.Register(outF);
   Files.Close(outF);
 END Eliminate;
-
+(*
+PROCEDURE fixLines(fileName, outName: ARRAY OF CHAR);
+VAR
+  R, outR : Files.Rider;
+  F, outF : Files.File;
+  ch: CHAR;
+BEGIN
+  F := Files.Old(fileName);
+  IF F = NIL THEN Out.String(fileName); Out.String(" not found."); Out.Ln; HALT(1) END;
+  Files.Set(R, F, 0);
+  outF := Files.New(outName);
+  IF outF = NIL THEN Out.String(outName); Out.String(" not found."); Out.Ln; HALT(1) END;
+  Files.Set(outR, outF, 0);
+  REPEAT
+    Files.Read(R, ch);
+    IF ch = 
+  
+  UNTIL R.eof;
+END fixLines;
+*)
 BEGIN
   (* fix absent ']' at the end of the transcription of the word "desertion" *)
   replaceChar(utfText, 1090503, 05DX);
@@ -220,9 +241,15 @@ BEGIN
   (* replace 20X with 0AX before abomination word *)
   replaceChar(ucsOutText,7774 (* 7777 *), 0AX);
   replaceChar(utfOutText, 11523  (*11526*), 0AX);
-  (*replace 0A with 20 inside abominate word description *)
-  (*replaceChar(utfOutText, 11512, 020X);
-  replaceChar(ucsOutText, 7769, 020X);*)
+  (* replace 0A in the middle of agglutinate word description *) 
+  replaceChar(ucsOutText, 78800, 020X);
+  replaceChar(utfOutText, 116068, 020X);
 
+  (* replace 0A with 020 before badge word *)
+  (*replaceChar(ucsOutText, 234426, 020X);*)
+  (*replaceChar(utfOutText, *)
+
+  (*fixLines(ucsOutText, ucsOutText1);
+  fixLines(utfOutText, utfOutText1);*)
 END fixer.
 

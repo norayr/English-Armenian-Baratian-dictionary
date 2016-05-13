@@ -255,7 +255,7 @@ BEGIN
 	WriteConvertLongString(outRider, ltmp);
     WriteChar(outRider, 0AX);
     INC(i); 
-  UNTIL (i = 350) OR utfRider.eof OR ucsRider.eof;
+  UNTIL (i = 1851) OR utfRider.eof OR ucsRider.eof;
 
   Files.Close(utfFile);
   Files.Close(ucsFile);
