@@ -19,6 +19,19 @@ BEGIN
   Files.Close(f);
 END fixAbsentSB;
 
+PROCEDURE replaceChar(fileName: ARRAY OF CHAR; pos: LONGINT; ch : CHAR);
+VAR
+  r : Files.Rider;
+  f : Files.File;
+BEGIN
+  f := Files.Old(fileName);
+  IF f = NIL THEN Out.String(fileName); Out.String(" not found."); Out.Ln; HALT(1) END;
+  Files.Set(r, f, pos);
+  Files.WriteByte(r, ch);
+  Files.Register(f);
+  Files.Close(f);
+END replaceChar;
+
 PROCEDURE isNumber(ch : CHAR): BOOLEAN;
 VAR
   o : LONGINT;
@@ -92,12 +105,12 @@ BEGIN
 			 pos1 := Files.Pos(R);
              found := FALSE;
 	         (* here could be unpredictable 0A which has to be handled *)
-			 Files.Read(R, ch);
+			 (*Files.Read(R, ch);
 			 IF ch # 0AX THEN
                Files.Set(R, F, pos1)
 			 ELSE
 			   Files.WriteByte(outR, 0AX);
-			 END;
+			 END;*)
 			 REPEAT
                Files.Read(R, ch);
 		       IF ch = '[' THEN found := TRUE END;
@@ -239,9 +252,25 @@ END fixLineEndings;
 
 BEGIN
   (* fix absent ']' at the end of the transcription of the word "desertion" *)
-
+(*
   fixAbsentSB(utfText, 1090503);
   fixAbsentSB(ucsText, 747847);
+*)
+  replaceChar(utfText, 1090503, 05DX);
+  replaceChar(ucsText, 747847, 05DX);
+
+  (* fix double eol after abominate word *)
+  replaceChar(utfText, 11512, 020X);
+  replaceChar(utfText, 11513, 020X);
+  replaceChar(ucsText, 7780, 020X);
+  replaceChar(ucsText, 7781, 020X);
+  (* fix double eol in abominate description *)
+  (*replaceChar(ucsText, 7814, 020X);
+  replaceChar(ucsText, 7815, 020X);*)
+
+
+
+
 
 (* now need to eliminate following sequences
    ---
@@ -269,6 +298,13 @@ BEGIN
  
   Eliminate(utfText, utfOutText);  
   Eliminate(ucsText, ucsOutText);  
+
+  (* replace 20X with 0AX before abomination word *)
+  replaceChar(ucsOutText,7777, 0AX);
+  replaceChar(utfOutText,11526, 0AX);
+  (*replace 0A with 20 inside abominate word description *)
+  replaceChar(utfOutText, 11512, 020X);
+  replaceChar(ucsOutText, 7769, 020X);
 (*
   (* replace  all double eols with ' ' *)
   fixLines(utfOutText);

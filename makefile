@@ -59,6 +59,12 @@ fix:
 	#remove all null characters
 	sed -i 's/\x0//g' $(DST0)
 	sed -i 's/\x0//g' $(DST1)
+	#fix ability word
+	sed -i 's/abilitl\/y/ability/g' $(DST0)
+	sed -i 's/abilitl\/y/ability/g' $(DST1)
+	#fix abominate
+	#sed -i 's/abominate\n\n/abominate /g' $(DST0)
+	#sed -i 's/abominate\n\n/abominate /g' $(DST1)
 	#remove line 30
 	#sed -i '30d' $(DST0)
 	#sed -i '30d' $(DST1)

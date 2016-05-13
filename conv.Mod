@@ -63,6 +63,7 @@ VAR
   i : LONGINT;
   str : s.string;
   ch : CHAR;
+  tmpch : CHAR;
 BEGIN
   i := 0;
   REPEAT
@@ -74,6 +75,7 @@ BEGIN
 	  IF ch = 03X THEN
 	    str := ArmsciiUTF.A2U(0B5X); (* բ looks broken in text *)
 		WriteString(r, str);
+		IF lstr[i+1] = 0BCX THEN INC(i) END;
 	  ELSIF ch = 05X THEN
 	    str := ArmsciiUTF.A2U(0A2X); (* sometimes և is that *)
 	  ELSIF (ch = 0A8X) THEN (* this is somehow և in the text *)
