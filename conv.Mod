@@ -116,6 +116,18 @@ REPEAT
 UNTIL (ch = 0X) OR (i = j - 1);
 END dumpString;
 
+PROCEDURE readTillNot(VAR R : Files.Rider; VAR F: Files.File; pt: CHAR);
+VAR
+  pos: LONGINT;
+  ch : CHAR;
+BEGIN
+  REPEAT
+    Files.Read(R, ch);
+  UNTIL ch # 0AX;
+  pos := Files.Pos(R);
+  Files.Set(R, F, pos - 1);
+END readTillNot;
+
 PROCEDURE getDescription(VAR r : Files.Rider; VAR f : Files.File; VAR tmp: s.longstring);
 VAR 
   ch: CHAR;
@@ -129,11 +141,17 @@ BEGIN
 	IF (ch # 0AX) THEN
 	  tmp[i] := ch;
 	  INC(i);
+	ELSIF ch = ':' THEN
+	  enough := TRUE;
+	  tmp[i] := ':';
+	  INC(i);
+	  tmp[i] := 0X;
     ELSIF ch = 0AX THEN
 	  enough := TRUE;
 	  tmp[i] := 0X;
 	END
   UNTIL enough;
+  readTillNot(r, f, 0AX);
 END getDescription;
 
 PROCEDURE getTranscription(VAR r : Files.Rider; VAR tmp: s.shortstring);
@@ -237,7 +255,7 @@ BEGIN
 	WriteConvertLongString(outRider, ltmp);
     WriteChar(outRider, 0AX);
     INC(i); 
-  UNTIL (i = 70) OR utfRider.eof OR ucsRider.eof;
+  UNTIL (i = 350) OR utfRider.eof OR ucsRider.eof;
 
   Files.Close(utfFile);
   Files.Close(ucsFile);

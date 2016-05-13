@@ -47,7 +47,17 @@ BEGIN
   UNTIL ch = 0AX;
 END skipTill;
 
-PROCEDURE lineContains(VAR R : Files.Rider; st : CHAR): BOOLEAN;
+PROCEDURE skipIf0A(VAR R : Files.Rider; VAR F: Files.File);
+VAR
+  ch : CHAR;
+  pos : LONGINT;
+BEGIN
+  pos := Files.Pos(R);
+  Files.Read(R, ch);
+  IF ch # 0AX THEN Files.Set(R, F, pos - 1) END
+END skipIf0A;
+
+PROCEDURE lineContains(VAR R : Files.Rider; VAR F: Files.File; st : CHAR): BOOLEAN;
 VAR
   ch : CHAR;
 BEGIN
@@ -57,16 +67,6 @@ BEGIN
     UNTIL (ch = 0AX) OR R.eof;
     RETURN FALSE
 END lineContains;
-
-PROCEDURE readWriteTill(VAR R, outR: Files.Rider; st: CHAR);
-VAR
-  ch : CHAR;
-BEGIN
-    REPEAT
-      Files.Read(R, ch);
-      IF ch # st THEN Files.WriteByte(outR, ch) END
-    UNTIL ch = st;
-END readWriteTill;
 
 PROCEDURE isPrev(R : Files.Rider; F : Files.File; ch : CHAR): BOOLEAN;
 VAR p : LONGINT;
@@ -83,7 +83,7 @@ VAR pos: LONGINT;
 BEGIN
   (* leave 0A only if the following line contains '[' *)
   pos := Files.Pos(R);
-  IF lineContains(R, '[') THEN
+  IF lineContains(R, F, '[') THEN
     Files.WriteByte(outR, 0AX);
   ELSE
     IF isPrev(outR, outF, 3AX) (* : *) THEN
@@ -94,6 +94,17 @@ BEGIN
   END;
   Files.Set(R, F, pos);
 END checkWriteNext;
+
+PROCEDURE readWriteTill(VAR R, outR: Files.Rider; st: CHAR);
+VAR
+  ch : CHAR;
+BEGIN
+    REPEAT
+      Files.Read(R, ch);
+      IF ch # st THEN Files.WriteByte(outR, ch) END
+    UNTIL ch = st;
+	(*IF isPrev(outR, outF, 3AX) THEN*)
+END readWriteTill;
 
 PROCEDURE Eliminate(fileName, outName : ARRAY OF CHAR);
 VAR
@@ -133,18 +144,22 @@ BEGIN
 			 Files.WriteByte(outR, 020X);
 		   END
         ELSE (* not form feed, not number *)
-		  Files.WriteByte(outR, 0AX);
+		  (*Files.WriteByte(outR, 0AX);*)
 		  Files.WriteByte(outR, ch);
 		  readWriteTill(R, outR, 0AX);
 		  Files.WriteByte(outR, 020X);
 		  Files.Read(R, ch);
 		  IF ch = 0AX THEN
             readWriteTill(R, outR, 0AX);		    
+			(*skipIf0A(R, F);*)
+			IF isPrev(R, F, 03AX) THEN
+			  Files.WriteByte(outR, 0AX);
+			END;
 		  END
 		END;
 	  ELSE (* no second 0A *)
        (* leave 0A only if the following line contains '[' *)
-		IF lineContains(R, '[') THEN
+		IF lineContains(R, F, '[') THEN
 		  Files.WriteByte(outR, 0AX);
 		ELSE
 		   Files.WriteByte(outR, 020X);
@@ -203,11 +218,11 @@ BEGIN
   Eliminate(ucsText, ucsOutText);  
 
   (* replace 20X with 0AX before abomination word *)
-  replaceChar(ucsOutText,7777, 0AX);
-  replaceChar(utfOutText,11526, 0AX);
+  replaceChar(ucsOutText,7774 (* 7777 *), 0AX);
+  replaceChar(utfOutText, 11523  (*11526*), 0AX);
   (*replace 0A with 20 inside abominate word description *)
-  replaceChar(utfOutText, 11512, 020X);
-  replaceChar(ucsOutText, 7769, 020X);
+  (*replaceChar(utfOutText, 11512, 020X);
+  replaceChar(ucsOutText, 7769, 020X);*)
 
 END fixer.
 

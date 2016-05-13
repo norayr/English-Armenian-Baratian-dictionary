@@ -3,7 +3,7 @@ MODULE s;
  TYPE string* = POINTER TO ARRAY OF CHAR;
        uchar* = ARRAY 4 OF CHAR;
  shortstring* = ARRAY 255 OF CHAR;
-  longstring* = ARRAY 1024 OF CHAR;
+  longstring* = ARRAY 4096 OF CHAR;
 
  PROCEDURE StripNull*(VAR str : uchar): string;
  VAR 
