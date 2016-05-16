@@ -214,6 +214,17 @@ BEGIN
   UNTIL enough;
 END getEnglishWord;
 
+PROCEDURE fixWord(VAR str : s.shortstring);
+VAR
+  i : LONGINT;
+BEGIN
+  i := Strings.Length(str);
+  REPEAT
+    DEC(i)
+  UNTIL str[i] # 020X; 
+  str[i+1] := 0X
+END fixWord;
+
 PROCEDURE toTab;
 VAR
   utfFile, ucsFile, outFile : Files.File;
@@ -240,6 +251,8 @@ BEGIN
     Out.String(tmp); Out.Char('"'); Out.Ln;
     getEnglishWord(ucsRider, ucsFile, tmp2);
     Out.Int(i, 0); Out.Char(' '); Out.String(ucsText); Out.String(':      "');    
+    fixWord(tmp); fixWord(tmp2); (* erase spaces after word if there are *)
+
     Out.String(tmp2); Out.Char('"'); Out.Ln;
     IF tmp = tmp2 THEN
 	  Out.String("Bingo!"); Out.Ln;
@@ -268,7 +281,7 @@ BEGIN
 	WriteConvertLongString(outRider, ltmp);
     WriteChar(outRider, 0AX);
     INC(i); 
-  UNTIL (i = 2000) OR utfRider.eof OR ucsRider.eof;
+  UNTIL (i = 2100) OR utfRider.eof OR ucsRider.eof;
 
   Files.Close(utfFile);
   Files.Close(ucsFile);

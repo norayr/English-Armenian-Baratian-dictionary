@@ -129,8 +129,15 @@ BEGIN
 	  IF ch = 0AX THEN (* second 0A *)
         Files.Read(R, ch);
 		IF ch = 0CX THEN (* form feed found, read till next 0A *)
-          (* need to read till next 0A *)
-		  skipTill(R, 0AX);
+          (*Files.Read(R, ch); (* if 0A 0A 0C number, which happens *)
+          IF isNumber(ch) THEN
+    	    skipTill(R, 0AX);
+		    skipTill(R, 0AX);
+		    skipTill(R, 0AX);
+          ELSE*)
+            (* need to read till next 0A *)
+		    skipTill(R, 0AX);
+          (*END;*)
 		  checkWriteNext(R, outR, F, outF);
 		ELSIF isNumber(ch) THEN (* page number found *)
 		   ch1 := ch;
@@ -196,6 +203,11 @@ BEGIN
   UNTIL R.eof;
 END fixLines;
 *)
+
+PROCEDURE fixNonRegularChars;
+VAR
+  i, j : LONGINT;
+  tmp, tmp1 : ARRAY 32 OF CHAR;
 BEGIN
   (* fix absent ']' at the end of the transcription of the word "desertion" *)
   replaceChar(utfText, 1090503, 05DX);
@@ -217,7 +229,119 @@ BEGIN
   replaceChar(ucsText, 249798, 020X);
   replaceChar(utfText, 364337, 020X);
 
+  (* same, replace 0C before "bat III" word *)
+  replaceChar(ucsText, 256474, 020X);
+  replaceChar(utfText, 374009, 020X);
+  
+  (* set as number to match the 0A, 0A, number, 0A, 0A, 0A pattern *)
+  (* there is 0A 0A bat III 0A 0A number which becomes 0A 0A number *)
+  i := 258138;
+  REPEAT
+  replaceChar(ucsText, i, 31X);
+  INC(i)
+  UNTIL i = 258148;
 
+  i := 376437;
+  REPEAT
+  replaceChar(utfText, i, 31X);
+  INC(i)
+  UNTIL i = 376446;
+
+  (* battle-plane word looks like
+  0A
+  0A
+  0C
+  86 - number
+  0A
+  0A
+  battle-plane
+  0A
+  battle-plane
+  0A
+  նաթիռ։
+  0A
+  0A
+  [] - transcription
+  n գրոհային ինք֊
+  *)
+  (* first fix that 0C with number *)
+  replaceChar(ucsText, 259719, 031X);
+  replaceChar(utfText, 378763, 031X);
+
+  (* now replace 0A after word with 20 *)
+  replaceChar(ucsText, 259749, 020X);
+  replaceChar(utfText, 378793, 020X);
+
+  (* now fix the text, bring transcription after the word *)
+  (* write transcription, does not matter what inside [] *)
+  replaceChar(ucsText, 259750, 020X);
+  replaceChar(ucsText, 259751, 020X);
+  replaceChar(ucsText, 259752, 020X);
+  replaceChar(ucsText, 259753, 020X);
+  replaceChar(ucsText, 259754, 020X);
+  replaceChar(ucsText, 259755, 5BX);
+  replaceChar(ucsText, 259756, 020X);
+  replaceChar(ucsText, 259757, 020X);
+  replaceChar(ucsText, 259758, 020X);
+  replaceChar(ucsText, 259759, 020X);
+  replaceChar(ucsText, 259760, 020X);
+  replaceChar(ucsText, 259761, 020X);
+  replaceChar(ucsText, 259762, 020X);
+  replaceChar(ucsText, 259763, 020X);
+  replaceChar(ucsText, 259764, 020X);
+  replaceChar(ucsText, 259765, 020X);
+  replaceChar(ucsText, 259766, 5DX);
+
+  (* description *)
+  (* 20, 6E, 20, B7, F1, E1, D1, B3, DB, C7, DD, 20, C7 DD F9 2D *)
+  replaceChar(ucsText, 259767, 020X);
+  replaceChar(ucsText, 259768, 06EX);
+  replaceChar(ucsText, 259769, 020X);
+  replaceChar(ucsText, 259770, 0B7X); (* գրոհային ինք *)
+  replaceChar(ucsText, 259771, 0F1X);
+  replaceChar(ucsText, 259772, 0E1X);
+  replaceChar(ucsText, 259773, 0D1X);
+  replaceChar(ucsText, 259774, 0B3X);
+  replaceChar(ucsText, 259775, 0DBX);
+  replaceChar(ucsText, 259776, 0C7X);
+  replaceChar(ucsText, 259777, 0DDX);
+  replaceChar(ucsText, 259778, 020X);
+  replaceChar(ucsText, 259779, 0C7X);
+  replaceChar(ucsText, 259780, 0DDX);
+  replaceChar(ucsText, 259781, 0F9X);
+  replaceChar(ucsText, 259782, 0DDX); (* նաթիռ: *)
+  replaceChar(ucsText, 259783, 0B3X);
+  replaceChar(ucsText, 259784, 0C3X);
+  replaceChar(ucsText, 259785, 0C7X);
+  replaceChar(ucsText, 259786, 0E9X);
+  replaceChar(ucsText, 259787, 03AX);
+  replaceChar(ucsText, 259788, 0AX);
+
+  (* last 2D is hyphen, needs to be replaced with colon *)
+  (* end of article *)
+  (* DD, B3, C3, C7, E9, 3A *)   
+
+  (* now fix transcription in utf file *)
+  i := 378794;
+  REPEAT
+    replaceChar(utfText, i, 020X);
+    INC(i)
+  UNTIL i = 378807; 
+
+  i := 378823; (* write something as description *)
+  REPEAT
+    replaceChar(utfText, i, 06EX);
+    INC(i)
+  UNTIL i = 378848;  
+  
+  replaceChar(utfText, 378848, 03AX);
+  replaceChar(utfText, 378849, 0AX);
+
+END fixNonRegularChars;
+
+BEGIN
+
+fixNonRegularChars;
 
 (* now need to eliminate following sequences
    ---
