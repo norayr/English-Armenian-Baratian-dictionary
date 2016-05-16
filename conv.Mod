@@ -103,6 +103,10 @@ BEGIN
 	  ELSIF (ch = 03AX) THEN (* end stop *)
 	    str := ArmsciiUTF.A2U(0A3X);
 		WriteString(r, str);
+      ELSIF (ch = 02EX) THEN (* dot *)
+        WriteChar(r, 0E2X);
+        WriteChar(r, 080X);
+        WriteChar(r, 0A4X);
 	  ELSE
 		IF ((ch >= 020X) & (ch <= 07EX)) OR ((ch >= 0A2X) & (ch <= 0FEX)) THEN
 	      WriteChar(r, ch)
