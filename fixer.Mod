@@ -359,6 +359,23 @@ BEGIN
   replaceChar(utfText, 378848, 03AX);
   replaceChar(utfText, 378849, 0AX);
 
+  (* bent word is absent in pdf output *)
+  replaceChar(ucsText, 282694, 0AX);
+  replaceChar(ucsText, 282695, 'b');
+  replaceChar(ucsText, 282696, 'e');
+  replaceChar(ucsText, 282697, 'n');
+  replaceChar(ucsText, 282698, 't');
+  replaceChar(ucsText, 282699, ' ');
+  replaceChar(ucsText, 282700, ' ');
+
+  replaceChar(utfText, 412037, 0AX);
+  replaceChar(utfText, 412038, 'b');
+  replaceChar(utfText, 412039, 'e');
+  replaceChar(utfText, 412040, 'n');
+  replaceChar(utfText, 412041, 't');
+  replaceChar(utfText, 412042, 020X);
+  replaceChar(utfText, 412043, 020X);
+
 END fixNonRegularChars;
 
 BEGIN
