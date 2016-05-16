@@ -230,9 +230,31 @@ BEGIN
   replaceChar(utfText, 364337, 020X);
 
   (* same, replace 0C before "bat III" word *)
-  replaceChar(ucsText, 256474, 020X);
-  replaceChar(utfText, 374009, 020X);
-  
+  (* 0c is at 256474 and we need to eliminate previous 0a as well *)
+  replaceChar(ucsText, 256473, 062X); (* b *)
+  replaceChar(ucsText, 256474, 061X); (* a *)
+  replaceChar(ucsText, 256475, 074X); (* t *)
+  replaceChar(ucsText, 256476, 020X); (* ' ' *)
+  replaceChar(ucsText, 256477, 049X); (* I *)
+  replaceChar(ucsText, 256478, 049X); (* I *)
+  replaceChar(ucsText, 256479, 049X); (* I *)
+  replaceChar(ucsText, 256480, 020X); (* ' ' *)
+  replaceChar(ucsText, 256481, 020X); (* ' ' *)
+  replaceChar(ucsText, 256482, 020X); (* ' ' *)
+
+  (*replaceChar(utfText, 374009, 020X);*)
+  replaceChar(utfText, 374008, 062X); (* b *)
+  replaceChar(utfText, 374009, 061X); (* a *)
+  replaceChar(utfText, 374010, 074X); (* t *)
+  replaceChar(utfText, 374011, 020X); (* ' ' *)
+  replaceChar(utfText, 374012, 049X); (* I *)
+  replaceChar(utfText, 374013, 049X); (* I *)
+  replaceChar(utfText, 374014, 049X); (* I *)
+  replaceChar(utfText, 374015, 020X); (* ' ' *)
+  replaceChar(utfText, 374016, 020X); (* ' ' *)
+  replaceChar(utfText, 374017, 020X); (* ' ' *)
+
+ 
   (* set as number to match the 0A, 0A, number, 0A, 0A, 0A pattern *)
   (* there is 0A 0A bat III 0A 0A number which becomes 0A 0A number *)
   i := 258138;
