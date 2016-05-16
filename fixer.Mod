@@ -212,13 +212,10 @@ BEGIN
   (* replace 0C before baggy word, because it's indeed an english word *)
   replaceChar(ucsText, 236234, 020X);
   replaceChar(utfText, 344567, 020X);
-  (* fix double eol after abominate word *)
-  (*replaceChar(utfText, 11512, 020X);
-  replaceChar(utfText, 11513, 020X);
-  replaceChar(ucsText, 7780, 020X);
-  replaceChar(ucsText, 7781, 020X);*)
 
-
+  (* same, replace 0C before the second "bargain" word *)
+  replaceChar(ucsText, 249798, 020X);
+  replaceChar(utfText, 364337, 020X);
 
 
 
