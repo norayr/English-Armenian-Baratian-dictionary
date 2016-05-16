@@ -209,6 +209,9 @@ BEGIN
   replaceChar(ucsText, 234426, 020X);
   replaceChar(utfText, 341856, 020X);
 
+  (* replace 0C before baggy word, because it's indeed an english word *)
+  replaceChar(ucsText, 236234, 020X);
+  replaceChar(utfText, 344567, 020X);
   (* fix double eol after abominate word *)
   (*replaceChar(utfText, 11512, 020X);
   replaceChar(utfText, 11513, 020X);
