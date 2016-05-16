@@ -16,6 +16,16 @@ TYPE
 		  next : word;
      END;
 
+PROCEDURE skipIfSpace(VAR R : Files.Rider; VAR F: Files.File);
+VAR
+  ch : CHAR;
+  pos : LONGINT;
+BEGIN
+  pos := Files.Pos(R);
+  Files.Read(R, ch);
+  IF ch # 020X THEN Files.Set(R, F, pos - 1) END
+END skipIfSpace;
+
 PROCEDURE isLatin(ch : CHAR): BOOLEAN;
 VAR
   o : LONGINT;
@@ -183,6 +193,9 @@ VAR
 BEGIN
   i := 0;
   enough := FALSE;
+  (* skip if space *)
+  ReadChar(r, ch);
+  IF ch # ' ' THEN tmp[i] := ch; INC(i) END;
   REPEAT
     ReadChar(r, ch);
     IF ch # '[' THEN

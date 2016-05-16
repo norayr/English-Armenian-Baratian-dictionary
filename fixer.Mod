@@ -201,6 +201,14 @@ BEGIN
   replaceChar(utfText, 1090503, 05DX);
   replaceChar(ucsText, 747847, 05DX);
 
+  (* replace eol after bagger word *)
+  (*replaceChar(utfText, 341791, 020X);
+  replaceChar(ucsText, 234390, 020X);*) (* no it should not be replaced because this is not a word, but a page header *)
+
+  (* fix double eol after bagger word description *)
+  replaceChar(ucsText, 234426, 020X);
+  replaceChar(utfText, 341856, 020X);
+
   (* fix double eol after abominate word *)
   (*replaceChar(utfText, 11512, 020X);
   replaceChar(utfText, 11513, 020X);
