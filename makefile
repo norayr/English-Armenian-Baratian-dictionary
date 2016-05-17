@@ -38,6 +38,10 @@ fix:
 	sed -i -n -e :a -e '1,128!{P;N;D;};N;ba' $(DST0)
 	#fix ability word
 	sed -i 's/abilitl\/y/ability/g' $(DST0)
+	#fix tran sposition word
+	sed -i 's/tran sposition/transposition/g' $(DST0)
+	#replace ':', ' ', with ':'
+	sed -i 's/: /:/g' $(DST0)
 maketab:
 	./converter
 

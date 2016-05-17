@@ -5,7 +5,7 @@ IMPORT Files, Out := Console, Strings, s, ArmsciiUTF;
 CONST
   inputText  = "baratian.txt";
   outputText = "baratian.tab";
-  wordsCount       = 27053;
+  wordsCount       = 25784;
 
 PROCEDURE errNotFound(name: ARRAY OF CHAR);
 BEGIN
@@ -38,7 +38,7 @@ BEGIN
    str[i-1] := 0X;
 END getEnglishWord;
 
-PROCEDURE getTranscription(VAR R: Files.Rider; str: s.shortstring);
+PROCEDURE getTranscription(VAR R: Files.Rider; VAR str: s.shortstring);
 VAR
   i : LONGINT;
   ch : CHAR;
@@ -97,7 +97,7 @@ BEGIN
       str[i] := ch;
       INC(i)
     ELSE
-      IF str[i] = ':' THEN
+      IF str[i-1] = ':' THEN
         str[i] := 0X;
         enough := TRUE
       ELSE
@@ -130,6 +130,23 @@ BEGIN
   UNTIL enough;
 END getDescription;
 
+PROCEDURE fix(VAR R: Files.Rider; VAR F: Files.File);
+BEGIN
+  Files.Set(R, F, 1129676);
+  Files.WriteByte(R, ']'); (* missing ']' after desertion word transcription *)
+  Files.Set(R, F, 2854187); (* nutritional, nutritious.. line contains 0A *)
+  Files.WriteByte(R, 020X);
+  (* fix 0A after transputer word *)
+  Files.Set(R, F, 4401970);
+  Files.WriteByte(R, 020X);
+  (* fix 0A after "unintended" word *)
+  Files.Set(R, F, 4526778);
+  Files.WriteByte(R, 020X);
+  (* fix 0A after "vantage-ground" word *)
+  Files.Set(R, F, 4602860);
+  Files.WriteByte(R, 020X);
+END fix;
+
 PROCEDURE Run;
 VAR
   FS, FD : Files.File;
@@ -144,7 +161,7 @@ BEGIN
 
   FD := Files.New(outputText);
   IF FS = NIL THEN errNotFound(outputText) END;
-
+  fix(RS, FS);
   Files.Set(RS, FS, 0);
   Files.Set(RD, FD, 0);
 
@@ -164,13 +181,15 @@ BEGIN
 	Files.WriteString(RD, ltmp);
 	Out.Int(i, 0); Out.String(": "); Out.String(tmp); Out.Ln;
 	Out.String(tmp2); Out.String(ltmp); Out.Ln; Out.Ln;
-  UNTIL RS.eof OR (i = wordsCount);
+	INC(i)
+  UNTIL RS.eof OR (i > wordsCount);
   Files.Register(FD);
   Files.Close(FD);
   Files.Close(FS);
 END Run;
 
 BEGIN
+
 Run;
 
 END converter.
