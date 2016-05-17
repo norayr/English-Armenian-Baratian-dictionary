@@ -8,9 +8,8 @@ VAR map : ARRAY 255 OF uchar;
 PROCEDURE A2U*(ch : CHAR): string;
 VAR 
     str0   : uchar;
-    pch : string;
+    (*pch : string;*)
 BEGIN
-
    str0 := map[ORD(ch)];
    RETURN s.StripNull(str0); 
    (*NEW(pch, 4);
@@ -18,10 +17,30 @@ BEGIN
    RETURN pch;*)
 END A2U;
 
+(* converts corrupted armscii-8 to utf-8 *)
+PROCEDURE corruptedA2U*(ch0, ch1: CHAR): string;
+VAR
+  str0: uchar;
+  pch:  string;
+BEGIN
+  IF ch0 = 0C2X THEN
+    str0 := map[ORD(ch1)];
+	RETURN s.StripNull(str0);
+  ELSIF ch0 = 0C3X THEN
+    str0 := map[ORD(ch1)+64];
+	RETURN s.StripNull(str0);
+  ELSE
+    str0 := s.emptyUchar;
+	RETURN s.StripNull(str0);
+  END;
+END corruptedA2U;
+
 BEGIN
 
 map[45] := "֊";
+map[46] := "․";
 map[58] := "։";
+map[161] := "֎";
 map[162] := "և";
 map[163] := "։";
 map[164] := ")";
@@ -114,10 +133,6 @@ map[250] := "Օ";
 map[251] := "օ";
 map[252] := "Ֆ";
 map[253] := "ֆ";
-map[254] := "՚";
-
-
-
-
+map[254] := "ʼ";
 
 END ArmsciiUTF.

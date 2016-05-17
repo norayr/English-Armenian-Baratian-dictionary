@@ -8,11 +8,9 @@ DST0 = $(NAME).txt
 DST = $(NAME).tab
 AGENT = 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.6) Gecko/20070802 SeaMonkey/1.1.4'
 
-#all: get totext fix fixer fix2 converter maketab makedict
-all: fix converter maketab makedict
+all: fix converter maketab fix2 makedict
 
-#almost_all: get totext fix fix2 maketab makedict
-almost_all: fix maketab makedict
+almost_all: fix maketab fix2 makedict
 
 
 # if we don't use -U option to spoof the site then it does not return the file but returns 403 forbidden error.
@@ -44,6 +42,14 @@ fix:
 	sed -i 's/: /:/g' $(DST0)
 maketab:
 	./converter
+
+fix2:
+	#replace ' ֊ ' with nothing
+	sed -i 's/ ֊ //g' $(DST)
+	#replace 'μ' with 'բ'
+	sed -i 's/μ/բ/g' $(DST)
+	#replace '—' with 'և'
+	sed -i 's/—/և/g' $(DST)
 
 makedict:
 	stardict_tabfile $(DST)

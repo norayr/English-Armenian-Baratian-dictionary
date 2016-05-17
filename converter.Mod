@@ -147,6 +147,35 @@ BEGIN
   Files.WriteByte(R, 020X);
 END fix;
 
+PROCEDURE writeDesc(VAR R : Files.Rider; lstr: s.longstring);
+VAR
+  ch, ch1: CHAR;
+  i : LONGINT;
+  str: s.string;
+BEGIN
+  i := 0;
+  REPEAT
+    ch := lstr[i];
+    IF (ch = 0C2X) OR (ch = 0C3X) THEN
+	  INC(i);
+	  ch1 := lstr[i];
+      str := ArmsciiUTF.corruptedA2U(ch, ch1);
+	  Files.WriteBytes(R, str^, LEN(str^)-1);
+	  Out.String(str^);
+	ELSIF (ch = 02DX) OR (ch = 02EX) OR (ch = 03AX) THEN
+	  str := ArmsciiUTF.A2U(ch);
+	  Files.WriteBytes(R, str^, LEN(str^)-1);
+	  Out.String(str^)
+	ELSIF ch = 0X THEN
+	  Files.WriteByte(R, 0AX);
+	ELSE
+      Files.WriteByte(R, ch);
+	  Out.Char(ch);
+	END;
+    INC(i)
+  UNTIL ch = 0X;
+END writeDesc;
+
 PROCEDURE Run;
 VAR
   FS, FD : Files.File;
@@ -175,12 +204,14 @@ BEGIN
     ELSE
       skipLine(RS)
     END;
-	Files.WriteString(RD, tmp);
+    Files.WriteBytes(RD, tmp, Strings.Length(tmp));
 	Files.WriteByte(RD, 09X);
-	Files.WriteString(RD, tmp2);
-	Files.WriteString(RD, ltmp);
-	Out.Int(i, 0); Out.String(": "); Out.String(tmp); Out.Ln;
-	Out.String(tmp2); Out.String(ltmp); Out.Ln; Out.Ln;
+	Files.WriteBytes(RD, tmp2, Strings.Length(tmp2));
+
+	Out.Int(i, 0); Out.String(": "); Out.String(tmp); Out.Char(' '); 
+	Out.String(tmp2); 
+	writeDesc(RD, ltmp);
+    Out.Ln;
 	INC(i)
   UNTIL RS.eof OR (i > wordsCount);
   Files.Register(FD);

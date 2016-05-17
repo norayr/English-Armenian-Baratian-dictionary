@@ -5,6 +5,9 @@ MODULE s;
  shortstring* = ARRAY 255 OF CHAR;
   longstring* = ARRAY 8192 OF CHAR;
 
+  VAR
+    emptyUchar* : uchar;
+
  PROCEDURE StripNull*(VAR str : uchar): string;
  VAR 
    pchar : string;
@@ -23,4 +26,9 @@ MODULE s;
    RETURN pchar
 END StripNull;
 
+BEGIN
+emptyUchar[0] := 0X;
+emptyUchar[1] := 0X;
+emptyUchar[2] := 0X;
+emptyUchar[3] := 0X;
 END s.
