@@ -376,6 +376,40 @@ BEGIN
   replaceChar(utfText, 412042, 020X);
   replaceChar(utfText, 412043, 020X);
 
+ (* fix 0C before bethink *)
+
+  (* the whole page text has to be shifted, because bethink english word
+     and transcription is at the end of the page while the description is
+     at the beginning *)
+
+  (* ucs
+     46550 0A
+     46551 0C
+     46552 'b'
+     46553 'e'
+     ...
+     46584 ':'
+     46585 0A
+     46586 'b' - start of the word betoken
+     ... 46c57 - last character to copy
+     ...
+     46c58 0A
+     46c59 0A
+     46c5a 'b'
+     46c5b 'e'
+     ...
+     46c6e ' '
+     46c6f 'v'
+     46c70 0A, 0A, 94...
+     *)
+     i := 46586X;
+     j := 0;
+     REPEAT
+       
+       tmp[j] := ch;
+       INC(i)
+     UNTIL i = 46c58;
+
 END fixNonRegularChars;
 
 BEGIN
