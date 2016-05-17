@@ -97,7 +97,7 @@ BEGIN
       str[i] := ch;
       INC(i)
     ELSE
-      IF str[i-1] = ':' THEN
+      IF str[i] = ':' THEN
         str[i] := 0X;
         enough := TRUE
       ELSE
