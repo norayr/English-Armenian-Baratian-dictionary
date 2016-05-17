@@ -142,7 +142,7 @@ BEGIN
   FS := Files.Old(inputText);
   IF FS = NIL THEN errNotFound(inputText) END;
 
-  FD := Files.Old(outputText);
+  FD := Files.New(outputText);
   IF FS = NIL THEN errNotFound(outputText) END;
 
   Files.Set(RS, FS, 0);
@@ -157,8 +157,17 @@ BEGIN
        getDescription(RS, FS, ltmp);
     ELSE
       skipLine(RS)
-    END
+    END;
+	Files.WriteString(RD, tmp);
+	Files.WriteByte(RD, 09X);
+	Files.WriteString(RD, tmp2);
+	Files.WriteString(RD, ltmp);
+	Out.Int(i, 0); Out.String(": "); Out.String(tmp); Out.Ln;
+	Out.String(tmp2); Out.String(ltmp); Out.Ln; Out.Ln;
   UNTIL RS.eof OR (i = wordsCount);
+  Files.Register(FD);
+  Files.Close(FD);
+  Files.Close(FS);
 END Run;
 
 BEGIN
