@@ -50,6 +50,8 @@ fix2:
 	sed -i 's/μ/բ/g' $(DST)
 	#replace '—' with 'և'
 	sed -i 's/—/և/g' $(DST)
+	#replace ' նել' with 'նել'
+	sed -i 's/ նել/նել/g' $(DST)
 
 makedict:
 	stardict_tabfile $(DST)
