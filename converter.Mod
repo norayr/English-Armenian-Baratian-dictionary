@@ -47,8 +47,10 @@ BEGIN
   i := 1;
   REPEAT
     Files.Read(R, ch);
-    str[i] := ch;
-    INC(i)
+	IF (*(ch # 020X) &*) (ch # 02DX) & (ch # 0AX) THEN
+      str[i] := ch;
+      INC(i)
+	END;
   UNTIL ch = ']';
   str[i] := 0X;
 END getTranscription;
